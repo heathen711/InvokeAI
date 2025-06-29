@@ -42,7 +42,7 @@ ENV \
     UV_MANAGED_PYTHON=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
-    UV_INDEX="https://download.pytorch.org/whl/rocm6.2.4" \
+    UV_INDEX="https://download.pytorch.org/whl/rocm6.3" \
     INVOKEAI_ROOT=/invokeai \
     INVOKEAI_HOST=0.0.0.0 \
     INVOKEAI_PORT=9090 \
@@ -51,7 +51,7 @@ ENV \
     CONTAINER_GID=${CONTAINER_GID:-1000}
 
 RUN wget -O /tmp/amdgpu-install.deb \
-    https://repo.radeon.com/amdgpu-install/6.2.4/ubuntu/noble/amdgpu-install_6.2.60204-1_all.deb && \
+    https://repo.radeon.com/amdgpu-install/6.3.4/ubuntu/noble/amdgpu-install_6.3.60304-1_all.deb && \
     apt install -y /tmp/amdgpu-install.deb && \
     apt update
 
