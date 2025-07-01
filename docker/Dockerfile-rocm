@@ -51,7 +51,7 @@ ENV \
     CONTAINER_GID=${CONTAINER_GID:-1000}
 
 RUN wget -O /tmp/amdgpu-install.deb \
-    https://repo.radeon.com/amdgpu-install/6.2.4/ubuntu/noble/amdgpu-install_6.2.60204-1_all.deb && \
+    https://repo.radeon.com/amdgpu-install/6.4.1/ubuntu/noble/amdgpu-install_6.4.60401-1_all.deb && \
     apt install -y /tmp/amdgpu-install.deb && \
     apt update
 
@@ -85,8 +85,9 @@ RUN python -c "from patchmatch import patch_match"
 RUN mkdir -p ${INVOKEAI_ROOT} && chown -R ${CONTAINER_UID}:${CONTAINER_GID} ${INVOKEAI_ROOT}
 
 COPY docker/docker-entrypoint.sh ./
-ENTRYPOINT ["/opt/invokeai/docker-entrypoint.sh"]
-CMD ["invokeai-web"]
+# ENTRYPOINT ["/opt/invokeai/docker-entrypoint.sh"]
+# CMD ["invokeai-web"]
+CMD ["/bin/sh"]
 
 # --link requires buldkit w/ dockerfile syntax 1.4, does not work with podman
 COPY --link --from=web-builder /build/dist ${INVOKEAI_SRC}/invokeai/frontend/web/dist
@@ -98,5 +99,5 @@ COPY invokeai ${INVOKEAI_SRC}/invokeai
 # in a previous layer
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     ulimit -n 30000 && \
-    uv pip install -e . --force-reinstall
+    uv pip install -e .
 
