@@ -9,7 +9,9 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)';
  */
 export const useIsMobile = (): boolean => {
   const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') {
+      return false;
+    }
     return window.matchMedia(MOBILE_BREAKPOINT).matches;
   });
 

@@ -1,5 +1,5 @@
 // src/common/hooks/useOrientation.test.ts
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { useOrientation } from './useOrientation';
@@ -37,5 +37,50 @@ describe('useOrientation', () => {
 
     const { result } = renderHook(() => useOrientation());
     expect(result.current).toBe('portrait');
+  });
+
+  it('should update orientation when media query changes', () => {
+    const listeners: ((e: MediaQueryListEvent) => void)[] = [];
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation(() => ({
+        matches: false,
+        media: '(orientation: landscape)',
+        addEventListener: vi.fn((_, handler) => listeners.push(handler)),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    const { result } = renderHook(() => useOrientation());
+    expect(result.current).toBe('portrait');
+
+    // Simulate orientation change
+    act(() => {
+      listeners[0]({ matches: true } as MediaQueryListEvent);
+    });
+
+    expect(result.current).toBe('landscape');
+  });
+
+  it('should remove event listener on unmount', () => {
+    const removeEventListener = vi.fn();
+
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation(() => ({
+        matches: false,
+        media: '(orientation: landscape)',
+        addEventListener: vi.fn(),
+        removeEventListener,
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    const { unmount } = renderHook(() => useOrientation());
+    unmount();
+
+    expect(removeEventListener).toHaveBeenCalledTimes(1);
   });
 });

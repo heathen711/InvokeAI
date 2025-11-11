@@ -11,7 +11,9 @@ const LANDSCAPE_QUERY = '(orientation: landscape)';
  */
 export const useOrientation = (): Orientation => {
   const [orientation, setOrientation] = useState<Orientation>(() => {
-    if (typeof window === 'undefined') return 'portrait';
+    if (typeof window === 'undefined') {
+      return 'portrait';
+    }
     return window.matchMedia(LANDSCAPE_QUERY).matches ? 'landscape' : 'portrait';
   });
 
