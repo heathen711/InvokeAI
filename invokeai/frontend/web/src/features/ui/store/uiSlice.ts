@@ -70,6 +70,26 @@ const slice = createSlice({
     pickerCompactViewStateChanged: (state, action: PayloadAction<{ pickerId: string; isCompact: boolean }>) => {
       state.pickerCompactViewStates[action.payload.pickerId] = action.payload.isCompact;
     },
+    // Add these reducers in the reducers object
+    setMobileMainTab: (state, action: PayloadAction<UIState['mobile']['activeMainTab']>) => {
+      state.mobile.activeMainTab = action.payload;
+    },
+    setMobileCreateMode: (state, action: PayloadAction<UIState['mobile']['activeCreateMode']>) => {
+      state.mobile.activeCreateMode = action.payload;
+    },
+    setMobileManageMode: (state, action: PayloadAction<UIState['mobile']['activeManageMode']>) => {
+      state.mobile.activeManageMode = action.payload;
+    },
+    toggleMobilePanel: (state, action: PayloadAction<keyof UIState['mobile']['panelsOpen']>) => {
+      const panel = action.payload;
+      state.mobile.panelsOpen[panel] = !state.mobile.panelsOpen[panel];
+    },
+    setMobilePanelOpen: (
+      state,
+      action: PayloadAction<{ panel: keyof UIState['mobile']['panelsOpen']; isOpen: boolean }>
+    ) => {
+      state.mobile.panelsOpen[action.payload.panel] = action.payload.isOpen;
+    },
   },
 });
 
@@ -83,9 +103,16 @@ export const {
   textAreaSizesStateChanged,
   dockviewStorageKeyChanged,
   pickerCompactViewStateChanged,
+  setMobileMainTab,
+  setMobileCreateMode,
+  setMobileManageMode,
+  toggleMobilePanel,
+  setMobilePanelOpen,
 } = slice.actions;
 
 export const selectUiSlice = (state: RootState) => state.ui;
+
+export const uiSlice = slice;
 
 export const uiSliceConfig: SliceConfig<typeof slice> = {
   slice,

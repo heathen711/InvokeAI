@@ -58,7 +58,7 @@ describe('useOrientation', () => {
 
     // Simulate orientation change
     act(() => {
-      listeners[0]({ matches: true } as MediaQueryListEvent);
+      listeners[0]?.({ matches: true } as MediaQueryListEvent);
     });
 
     expect(result.current).toBe('landscape');
