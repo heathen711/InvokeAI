@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
     },
     test: {
+      environment: 'happy-dom',
       typecheck: {
         enabled: true,
         ignoreSourceErrors: true,
