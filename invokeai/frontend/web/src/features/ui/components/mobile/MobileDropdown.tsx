@@ -1,6 +1,6 @@
 // src/features/ui/components/mobile/MobileDropdown.tsx
 import { Button, Menu, MenuButton, MenuItem, MenuList } from '@invoke-ai/ui-library';
-import { memo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { PiCaretDown } from 'react-icons/pi';
 
 export interface MobileDropdownOption<T extends string> {
@@ -16,7 +16,14 @@ interface MobileDropdownProps<T extends string> {
 }
 
 function MobileDropdownComponent<T extends string>({ value, options, onChange, label }: MobileDropdownProps<T>) {
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = useMemo(() => options.find((opt) => opt.value === value), [options, value]);
+
+  const createClickHandler = useCallback(
+    (optionValue: T) => {
+      return () => onChange(optionValue);
+    },
+    [onChange]
+  );
 
   return (
     <Menu>
@@ -33,7 +40,7 @@ function MobileDropdownComponent<T extends string>({ value, options, onChange, l
         {options.map((option) => (
           <MenuItem
             key={option.value}
-            onClick={() => onChange(option.value)}
+            onClick={createClickHandler(option.value)}
             bg={option.value === value ? 'base.700' : undefined}
           >
             {option.label}

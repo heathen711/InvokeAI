@@ -14,16 +14,55 @@ const TAB_CONFIG: Record<MobileMainTab, { label: string; icon: IconType }> = {
   manage: { label: 'Manage', icon: PiSliders },
 };
 
+const TabButton = memo(
+  ({
+    config,
+    isActive,
+    onClick,
+  }: {
+    config: { label: string; icon: IconType };
+    isActive: boolean;
+    onClick: () => void;
+  }) => (
+    <Button
+      onClick={onClick}
+      variant="ghost"
+      flexDirection="column"
+      height="100%"
+      width="33.333%"
+      borderRadius={0}
+      color={isActive ? 'invokeBlue.400' : 'base.400'}
+      _hover={{
+        bg: 'base.800',
+      }}
+      aria-label={config.label}
+      aria-current={isActive ? 'page' : undefined}
+    >
+      <Icon as={config.icon} boxSize={6} />
+      <Text fontSize="xs" mt={1}>
+        {config.label}
+      </Text>
+    </Button>
+  )
+);
+
+TabButton.displayName = 'TabButton';
+
 export const MobileBottomTabBar = memo(() => {
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector(selectMobileMainTab);
 
-  const handleTabClick = useCallback(
-    (tab: MobileMainTab) => {
-      dispatch(uiSlice.actions.setMobileMainTab(tab));
-    },
-    [dispatch]
-  );
+  const handleCreateClick = useCallback(() => {
+    dispatch(uiSlice.actions.setMobileMainTab('create'));
+  }, [dispatch]);
+
+  const handleViewClick = useCallback(() => {
+    dispatch(uiSlice.actions.setMobileMainTab('view'));
+  }, [dispatch]);
+
+  const handleManageClick = useCallback(() => {
+    dispatch(uiSlice.actions.setMobileMainTab('manage'));
+  }, [dispatch]);
 
   return (
     <Flex
@@ -41,33 +80,9 @@ export const MobileBottomTabBar = memo(() => {
       justifyContent="space-around"
       alignItems="center"
     >
-      {(Object.keys(TAB_CONFIG) as MobileMainTab[]).map((tab) => {
-        const config = TAB_CONFIG[tab];
-        const isActive = activeTab === tab;
-
-        return (
-          <Button
-            key={tab}
-            onClick={() => handleTabClick(tab)}
-            variant="ghost"
-            flexDirection="column"
-            height="100%"
-            width="33.333%"
-            borderRadius={0}
-            color={isActive ? 'invokeBlue.400' : 'base.400'}
-            _hover={{
-              bg: 'base.800',
-            }}
-            aria-label={config.label}
-            aria-current={isActive ? 'page' : undefined}
-          >
-            <Icon as={config.icon} boxSize={6} />
-            <Text fontSize="xs" mt={1}>
-              {config.label}
-            </Text>
-          </Button>
-        );
-      })}
+      <TabButton config={TAB_CONFIG.create} isActive={activeTab === 'create'} onClick={handleCreateClick} />
+      <TabButton config={TAB_CONFIG.view} isActive={activeTab === 'view'} onClick={handleViewClick} />
+      <TabButton config={TAB_CONFIG.manage} isActive={activeTab === 'manage'} onClick={handleManageClick} />
     </Flex>
   );
 });

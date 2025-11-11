@@ -2,8 +2,8 @@
 import { ChakraProvider } from '@invoke-ai/ui-library';
 import { render, screen } from '@testing-library/react';
 import { createStore } from 'app/store/store';
-import { describe, expect, it } from 'vitest';
 import { Provider } from 'react-redux';
+import { describe, expect, it } from 'vitest';
 
 import { MobileBottomTabBar } from './MobileBottomTabBar';
 

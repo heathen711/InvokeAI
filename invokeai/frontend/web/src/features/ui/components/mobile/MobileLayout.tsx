@@ -12,13 +12,7 @@ export const MobileLayout = memo(() => {
   const activeTab = useAppSelector(selectMobileMainTab);
 
   return (
-    <Flex
-      flexDirection="column"
-      width="full"
-      height="100vh"
-      overflow="hidden"
-      position="relative"
-    >
+    <Flex flexDirection="column" width="full" height="100vh" overflow="hidden" position="relative">
       {/* Content area - fills space above bottom tab bar */}
       <Flex
         flex={1}
