@@ -15,7 +15,7 @@ interface MobileDropdownProps<T extends string> {
   label?: string;
 }
 
-export const MobileDropdown = memo(<T extends string>({ value, options, onChange, label }: MobileDropdownProps<T>) => {
+function MobileDropdownComponent<T extends string>({ value, options, onChange, label }: MobileDropdownProps<T>) {
   const selectedOption = options.find((opt) => opt.value === value);
 
   return (
@@ -42,6 +42,6 @@ export const MobileDropdown = memo(<T extends string>({ value, options, onChange
       </MenuList>
     </Menu>
   );
-});
+}
 
-MobileDropdown.displayName = 'MobileDropdown';
+export const MobileDropdown = memo(MobileDropdownComponent) as typeof MobileDropdownComponent;
