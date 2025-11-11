@@ -66,3 +66,10 @@
   /* this is the tab divider */
   background-color: var(--dv-inactivegroup-tab-divider-color);
 }
+
+/* Mobile safe area support for devices with notches */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-safe-bottom {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+}

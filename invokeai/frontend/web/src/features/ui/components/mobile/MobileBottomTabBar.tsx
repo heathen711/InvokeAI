@@ -36,7 +36,7 @@ export const MobileBottomTabBar = memo(() => {
       bg="base.900"
       borderTopWidth={1}
       borderTopColor="base.800"
-      paddingBottom="env(safe-area-inset-bottom)"
+      pb="env(safe-area-inset-bottom, 0px)"
       zIndex={1000}
       justifyContent="space-around"
       alignItems="center"
