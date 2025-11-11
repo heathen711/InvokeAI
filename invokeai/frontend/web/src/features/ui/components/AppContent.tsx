@@ -5,6 +5,8 @@ import { Flex } from '@invoke-ai/ui-library';
 import { useStore } from '@nanostores/react';
 import { useAppSelector } from 'app/store/storeHooks';
 import Loading from 'common/components/Loading/Loading';
+import { useIsMobile } from 'common/hooks/useIsMobile';
+import { MobileLayout } from 'features/ui/components/mobile/MobileLayout';
 import { VerticalNavBar } from 'features/ui/components/VerticalNavBar';
 import { CanvasTabAutoLayout } from 'features/ui/layouts/canvas-tab-auto-layout';
 import { GenerateTabAutoLayout } from 'features/ui/layouts/generate-tab-auto-layout';
@@ -17,10 +19,18 @@ import { selectActiveTab } from 'features/ui/store/uiSelectors';
 import { memo } from 'react';
 
 export const AppContent = memo(() => {
+  const isMobile = useIsMobile();
+
   return (
     <Flex position="relative" w="full" h="full" overflow="hidden">
-      <VerticalNavBar />
-      <TabContent />
+      {isMobile ? (
+        <MobileLayout />
+      ) : (
+        <>
+          <VerticalNavBar />
+          <TabContent />
+        </>
+      )}
     </Flex>
   );
 });
