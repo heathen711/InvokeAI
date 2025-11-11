@@ -136,6 +136,18 @@ export const uiSliceConfig: SliceConfig<typeof slice> = {
         state.panels = {};
         state._version = 4;
       }
+      if (state._version === 4) {
+        state.mobile = {
+          activeMainTab: 'create',
+          activeCreateMode: 'generate',
+          activeManageMode: 'queue',
+          panelsOpen: {
+            layers: false,
+            toolSettings: false,
+          },
+        };
+        state._version = 5;
+      }
       return zUIState.parse(state);
     },
     persistDenylist: ['shouldShowItemDetails'],

@@ -28,7 +28,7 @@ const zSerializable = z.any().refine(isPlainObject);
 export type Serializable = z.infer<typeof zSerializable>;
 
 export const zUIState = z.object({
-  _version: z.literal(4),
+  _version: z.literal(5),
   activeTab: zTabName,
   shouldShowItemDetails: z.boolean(),
   shouldShowProgressInViewer: z.boolean(),
@@ -48,7 +48,7 @@ export const zUIState = z.object({
 });
 export type UIState = z.infer<typeof zUIState>;
 export const getInitialUIState = (): UIState => ({
-  _version: 4 as const,
+  _version: 5 as const,
   activeTab: 'generate' as const,
   shouldShowItemDetails: false,
   shouldShowProgressInViewer: true,
