@@ -1,5 +1,6 @@
 import { Box, Flex, Spinner, Text } from '@invoke-ai/ui-library';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGetQueueStatusQuery } from 'services/api/endpoints/queue';
 
 /**
@@ -7,6 +8,7 @@ import { useGetQueueStatusQuery } from 'services/api/endpoints/queue';
  * Shows pending, in_progress, completed, failed counts
  */
 export const MobileQueueStatus = memo(() => {
+  const { t } = useTranslation();
   const { data: queueStatus, isLoading } = useGetQueueStatusQuery();
 
   if (isLoading) {
@@ -26,14 +28,14 @@ export const MobileQueueStatus = memo(() => {
   return (
     <Box p={4} bg="base.850" borderRadius="md">
       <Text fontSize="sm" fontWeight="semibold" mb={2} color="base.300">
-        Queue Status
+        {t('queue.queueStatus')}
       </Text>
       <Flex gap={4} flexWrap="wrap">
-        <StatusBadge label="Pending" count={pending} color="blue.400" />
-        <StatusBadge label="Running" count={in_progress} color="green.400" />
-        <StatusBadge label="Completed" count={completed} color="base.400" />
-        {failed > 0 && <StatusBadge label="Failed" count={failed} color="red.400" />}
-        {canceled > 0 && <StatusBadge label="Canceled" count={canceled} color="orange.400" />}
+        <StatusBadge label={t('queue.pending')} count={pending} color="blue.400" />
+        <StatusBadge label={t('queue.in_progress')} count={in_progress} color="green.400" />
+        <StatusBadge label={t('queue.completed')} count={completed} color="base.400" />
+        {failed > 0 && <StatusBadge label={t('queue.failed')} count={failed} color="red.400" />}
+        {canceled > 0 && <StatusBadge label={t('queue.canceled')} count={canceled} color="orange.400" />}
       </Flex>
     </Box>
   );

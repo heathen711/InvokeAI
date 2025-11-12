@@ -7,6 +7,13 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { MobileQueueStatus } from './MobileQueueStatus';
 
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 // Mock the API hook
 const mockUseGetQueueStatusQuery = vi.fn();
 vi.mock('services/api/endpoints/queue', async (importOriginal) => {
@@ -57,6 +64,6 @@ describe('MobileQueueStatus', () => {
 
     expect(screen.getByText('5')).toBeDefined(); // pending
     expect(screen.getByText('10')).toBeDefined(); // completed
-    expect(screen.getByText(/completed/i)).toBeDefined();
+    expect(screen.getByText('queue.completed')).toBeDefined();
   });
 });

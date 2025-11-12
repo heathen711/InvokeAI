@@ -246,6 +246,7 @@
     },
     "queue": {
         "queue": "Queue",
+        "queueStatus": "Queue Status",
         "queueFront": "Add to Front of Queue",
         "queueBack": "Add to Queue",
         "queueEmpty": "Queue Empty",
