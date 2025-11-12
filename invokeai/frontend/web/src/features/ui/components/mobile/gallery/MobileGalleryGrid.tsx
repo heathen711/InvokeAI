@@ -1,5 +1,6 @@
 // src/features/ui/components/mobile/gallery/MobileGalleryGrid.tsx
-import { Box, Flex, Grid, Spinner, Text } from '@invoke-ai/ui-library';
+import { Box, Flex, Grid, Text } from '@invoke-ai/ui-library';
+import { MobileGallerySkeleton } from 'features/ui/components/mobile/loading/MobileGallerySkeleton';
 import { memo, useCallback } from 'react';
 import { PiStarFill } from 'react-icons/pi';
 import { useListImagesQuery } from 'services/api/endpoints/images';
@@ -84,11 +85,7 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
 
   // Loading state
   if (isLoading || isFetching) {
-    return (
-      <Flex width="full" height="full" alignItems="center" justifyContent="center">
-        <Spinner role="status" aria-label="Loading images" />
-      </Flex>
-    );
+    return <MobileGallerySkeleton />;
   }
 
   // Empty state

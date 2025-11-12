@@ -1,4 +1,5 @@
-import { Box, Flex, Spinner, Text } from '@invoke-ai/ui-library';
+import { Box, Flex, Text } from '@invoke-ai/ui-library';
+import { MobileQueueSkeleton } from 'features/ui/components/mobile/loading/MobileQueueSkeleton';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGetQueueStatusQuery } from 'services/api/endpoints/queue';
@@ -12,11 +13,7 @@ export const MobileQueueStatus = memo(() => {
   const { data: queueStatus, isLoading } = useGetQueueStatusQuery();
 
   if (isLoading) {
-    return (
-      <Flex justifyContent="center" alignItems="center" p={4}>
-        <Spinner role="status" aria-label="Loading queue status" />
-      </Flex>
-    );
+    return <MobileQueueSkeleton />;
   }
 
   if (!queueStatus) {

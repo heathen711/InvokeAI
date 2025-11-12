@@ -1,6 +1,7 @@
 // src/features/ui/components/mobile/models/MobileModelsList.tsx
-import { Badge, Box, Flex, Spinner, Text } from '@invoke-ai/ui-library';
+import { Badge, Box, Flex, Text } from '@invoke-ai/ui-library';
 import { EMPTY_ARRAY } from 'app/store/constants';
+import { MobileModelsSkeleton } from 'features/ui/components/mobile/loading/MobileModelsSkeleton';
 import { memo, useCallback } from 'react';
 import { modelConfigsAdapterSelectors, useGetModelConfigsQuery } from 'services/api/endpoints/models';
 import type { AnyModelConfig } from 'services/api/types';
@@ -22,11 +23,7 @@ export const MobileModelsList = memo(({ onModelSelect }: MobileModelsListProps) 
   });
 
   if (isLoading) {
-    return (
-      <Flex justifyContent="center" alignItems="center" p={8}>
-        <Spinner role="status" aria-label="Loading models" size="xl" />
-      </Flex>
-    );
+    return <MobileModelsSkeleton />;
   }
 
   if (!models || models.length === 0) {
