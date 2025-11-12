@@ -14,6 +14,7 @@ import {
   negativePromptChanged,
   positivePromptChanged,
   selectCFGScale,
+  selectModel,
   selectNegativePrompt,
   selectPositivePrompt,
   selectSteps,
@@ -29,6 +30,7 @@ import { memo, useCallback } from 'react';
 import { PiSparkleFill } from 'react-icons/pi';
 
 const STEPS_CONSTRAINTS = {
+  initial: 30,
   sliderMin: 1,
   sliderMax: 100,
   numberInputMin: 1,
@@ -38,6 +40,7 @@ const STEPS_CONSTRAINTS = {
 };
 
 const CFG_CONSTRAINTS = {
+  initial: 7,
   sliderMin: 1,
   sliderMax: 20,
   numberInputMin: 1,
@@ -56,9 +59,11 @@ export const MobileGenerateForm = memo(() => {
   const negativePrompt = useAppSelector(selectNegativePrompt);
   const steps = useAppSelector(selectSteps);
   const cfgScale = useAppSelector(selectCFGScale);
+  const model = useAppSelector(selectModel);
 
   const enqueueGenerate = useEnqueueGenerate();
   const isLoading = useIsQueueMutationInProgress();
+  const canGenerate = model !== null && !isLoading;
 
   const handleGenerate = useCallback(() => {
     enqueueGenerate(false);
@@ -143,6 +148,7 @@ export const MobileGenerateForm = memo(() => {
             <FormLabel>Steps: {steps}</FormLabel>
             <CompositeSlider
               value={steps}
+              defaultValue={STEPS_CONSTRAINTS.initial}
               onChange={handleStepsChange}
               min={STEPS_CONSTRAINTS.sliderMin}
               max={STEPS_CONSTRAINTS.sliderMax}
@@ -151,6 +157,7 @@ export const MobileGenerateForm = memo(() => {
             />
             <CompositeNumberInput
               value={steps}
+              defaultValue={STEPS_CONSTRAINTS.initial}
               onChange={handleStepsChange}
               min={STEPS_CONSTRAINTS.numberInputMin}
               max={STEPS_CONSTRAINTS.numberInputMax}
@@ -164,6 +171,7 @@ export const MobileGenerateForm = memo(() => {
             <FormLabel>CFG Scale: {cfgScale.toFixed(1)}</FormLabel>
             <CompositeSlider
               value={cfgScale}
+              defaultValue={CFG_CONSTRAINTS.initial}
               onChange={handleCfgScaleChange}
               min={CFG_CONSTRAINTS.sliderMin}
               max={CFG_CONSTRAINTS.sliderMax}
@@ -172,6 +180,7 @@ export const MobileGenerateForm = memo(() => {
             />
             <CompositeNumberInput
               value={cfgScale}
+              defaultValue={CFG_CONSTRAINTS.initial}
               onChange={handleCfgScaleChange}
               min={CFG_CONSTRAINTS.numberInputMin}
               max={CFG_CONSTRAINTS.numberInputMax}
@@ -194,13 +203,14 @@ export const MobileGenerateForm = memo(() => {
         <Button
           onClick={handleGenerate}
           isLoading={isLoading}
+          isDisabled={!canGenerate}
           colorScheme="invokeBlue"
           size="lg"
           width="full"
           maxWidth="400px"
           leftIcon={<PiSparkleFill />}
         >
-          Generate
+          {model ? 'Generate' : 'Select Model First'}
         </Button>
       </MobileActionBar>
     </>
