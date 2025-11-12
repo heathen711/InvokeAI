@@ -18,6 +18,7 @@ import { modelChanged, selectModel } from 'features/controlLayers/store/paramsSl
 import { memo, useCallback } from 'react';
 import { modelConfigsAdapterSelectors, useGetModelConfigsQuery } from 'services/api/endpoints/models';
 import type { AnyModelConfig } from 'services/api/types';
+import { isNonRefinerMainModelConfig } from 'services/api/types';
 
 interface MobileModelSelectorModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ export const MobileModelSelectorModal = memo(({ isOpen, onClose }: MobileModelSe
 
   const { models, isLoading } = useGetModelConfigsQuery(undefined, {
     selectFromResult: ({ data, isLoading }) => ({
-      models: data ? modelConfigsAdapterSelectors.selectAll(data).filter((m) => m.type === 'main') : EMPTY_ARRAY,
+      models: data ? modelConfigsAdapterSelectors.selectAll(data).filter(isNonRefinerMainModelConfig) : EMPTY_ARRAY,
       isLoading,
     }),
   });
