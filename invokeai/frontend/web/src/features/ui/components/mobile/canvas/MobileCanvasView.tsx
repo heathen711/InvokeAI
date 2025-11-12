@@ -72,7 +72,15 @@ export const MobileCanvasView = memo(() => {
   return (
     <Flex flexDirection="column" width="full" height="full" position="relative" overflow="hidden">
       {/* Full-screen toggle */}
-      <Button position="absolute" top={4} right={4} zIndex={10} size="sm" onClick={handleFullScreenToggle}>
+      <Button
+        position="absolute"
+        top={4}
+        right={4}
+        zIndex={10}
+        size="sm"
+        onClick={handleFullScreenToggle}
+        aria-label="Toggle fullscreen"
+      >
         <PiArrowsOut />
       </Button>
 
@@ -113,8 +121,10 @@ export const MobileCanvasView = memo(() => {
         fontSize="sm"
         color="base.300"
       >
-        <span>Zoom: {Math.round(scale * 100)}%</span>
-        <span>Double-tap to fit</span>
+        <span role="status" aria-live="polite">
+          Zoom: {Math.round(scale * 100)}%
+        </span>
+        <span role="note">Double-tap to fit</span>
       </Flex>
     </Flex>
   );
