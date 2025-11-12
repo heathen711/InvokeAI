@@ -1,37 +1,102 @@
 // src/features/ui/components/mobile/generate/MobileGenerateForm.tsx
-import { Button, Flex, FormControl, FormLabel, Textarea, VStack } from '@invoke-ai/ui-library';
+import {
+  Button,
+  CompositeNumberInput,
+  CompositeSlider,
+  Flex,
+  FormControl,
+  FormLabel,
+  Textarea,
+  VStack,
+} from '@invoke-ai/ui-library';
+import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import {
+  negativePromptChanged,
+  positivePromptChanged,
+  selectCFGScale,
+  selectNegativePrompt,
+  selectPositivePrompt,
+  selectSteps,
+  setCfgScale,
+  setSteps,
+} from 'features/controlLayers/store/paramsSlice';
+import { useEnqueueGenerate } from 'features/queue/hooks/useEnqueueGenerate';
+import { useIsQueueMutationInProgress } from 'features/queue/hooks/useIsQueueMutationInProgress';
 import { MobileModelSelector } from 'features/ui/components/mobile/generate/MobileModelSelector';
 import { MobileActionBar } from 'features/ui/components/mobile/MobileActionBar';
 import type { ChangeEvent } from 'react';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
+import { PiSparkleFill } from 'react-icons/pi';
+
+const STEPS_CONSTRAINTS = {
+  sliderMin: 1,
+  sliderMax: 100,
+  numberInputMin: 1,
+  numberInputMax: 500,
+  fineStep: 1,
+  coarseStep: 1,
+};
+
+const CFG_CONSTRAINTS = {
+  sliderMin: 1,
+  sliderMax: 20,
+  numberInputMin: 1,
+  numberInputMax: 200,
+  fineStep: 0.1,
+  coarseStep: 0.5,
+};
 
 /**
  * Generate mode settings form for mobile
  * Single scrollable form with all generation parameters
  */
 export const MobileGenerateForm = memo(() => {
-  const [prompt, setPrompt] = useState('');
-  const [negativePrompt, setNegativePrompt] = useState('');
+  const dispatch = useAppDispatch();
+  const positivePrompt = useAppSelector(selectPositivePrompt);
+  const negativePrompt = useAppSelector(selectNegativePrompt);
+  const steps = useAppSelector(selectSteps);
+  const cfgScale = useAppSelector(selectCFGScale);
+
+  const enqueueGenerate = useEnqueueGenerate();
+  const isLoading = useIsQueueMutationInProgress();
 
   const handleGenerate = useCallback(() => {
-    // TODO: Implement generation logic in Phase 3
-    // eslint-disable-next-line no-console
-    console.log('Generate:', { prompt, negativePrompt });
-  }, [prompt, negativePrompt]);
+    enqueueGenerate(false);
+  }, [enqueueGenerate]);
 
   const handleModelPress = useCallback(() => {
-    // TODO: Open model selector in Phase 3
+    // TODO: Open model selector modal in Phase 5 Task 2
     // eslint-disable-next-line no-console
     console.log('Open model selector');
   }, []);
 
-  const handlePromptChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    setPrompt(e.target.value);
-  }, []);
+  const handlePromptChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      dispatch(positivePromptChanged(e.target.value));
+    },
+    [dispatch]
+  );
 
-  const handleNegativePromptChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    setNegativePrompt(e.target.value);
-  }, []);
+  const handleNegativePromptChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      dispatch(negativePromptChanged(e.target.value));
+    },
+    [dispatch]
+  );
+
+  const handleStepsChange = useCallback(
+    (value: number) => {
+      dispatch(setSteps(value));
+    },
+    [dispatch]
+  );
+
+  const handleCfgScaleChange = useCallback(
+    (value: number) => {
+      dispatch(setCfgScale(value));
+    },
+    [dispatch]
+  );
 
   return (
     <>
@@ -53,7 +118,7 @@ export const MobileGenerateForm = memo(() => {
           <FormControl>
             <FormLabel>Prompt</FormLabel>
             <Textarea
-              value={prompt}
+              value={positivePrompt}
               onChange={handlePromptChange}
               placeholder="Describe what you want to generate..."
               minHeight="120px"
@@ -65,7 +130,7 @@ export const MobileGenerateForm = memo(() => {
           <FormControl>
             <FormLabel>Negative Prompt</FormLabel>
             <Textarea
-              value={negativePrompt}
+              value={negativePrompt ?? ''}
               onChange={handleNegativePromptChange}
               placeholder="Describe what you want to avoid..."
               minHeight="80px"
@@ -73,10 +138,50 @@ export const MobileGenerateForm = memo(() => {
             />
           </FormControl>
 
+          {/* Steps slider */}
+          <FormControl>
+            <FormLabel>Steps: {steps}</FormLabel>
+            <CompositeSlider
+              value={steps}
+              onChange={handleStepsChange}
+              min={STEPS_CONSTRAINTS.sliderMin}
+              max={STEPS_CONSTRAINTS.sliderMax}
+              step={STEPS_CONSTRAINTS.coarseStep}
+              fineStep={STEPS_CONSTRAINTS.fineStep}
+            />
+            <CompositeNumberInput
+              value={steps}
+              onChange={handleStepsChange}
+              min={STEPS_CONSTRAINTS.numberInputMin}
+              max={STEPS_CONSTRAINTS.numberInputMax}
+              step={STEPS_CONSTRAINTS.coarseStep}
+              fineStep={STEPS_CONSTRAINTS.fineStep}
+            />
+          </FormControl>
+
+          {/* CFG Scale slider */}
+          <FormControl>
+            <FormLabel>CFG Scale: {cfgScale.toFixed(1)}</FormLabel>
+            <CompositeSlider
+              value={cfgScale}
+              onChange={handleCfgScaleChange}
+              min={CFG_CONSTRAINTS.sliderMin}
+              max={CFG_CONSTRAINTS.sliderMax}
+              step={CFG_CONSTRAINTS.coarseStep}
+              fineStep={CFG_CONSTRAINTS.fineStep}
+            />
+            <CompositeNumberInput
+              value={cfgScale}
+              onChange={handleCfgScaleChange}
+              min={CFG_CONSTRAINTS.numberInputMin}
+              max={CFG_CONSTRAINTS.numberInputMax}
+              step={CFG_CONSTRAINTS.coarseStep}
+              fineStep={CFG_CONSTRAINTS.fineStep}
+            />
+          </FormControl>
+
           {/* TODO: Add more parameters in future tasks:
            * - Dimensions (width, height presets)
-           * - Steps slider
-           * - CFG Scale slider
            * - Sampler dropdown
            * - Seed controls
            * - Advanced settings
@@ -86,7 +191,15 @@ export const MobileGenerateForm = memo(() => {
 
       {/* Fixed Action Bar */}
       <MobileActionBar>
-        <Button onClick={handleGenerate} colorScheme="invokeBlue" size="lg" width="full" maxWidth="400px">
+        <Button
+          onClick={handleGenerate}
+          isLoading={isLoading}
+          colorScheme="invokeBlue"
+          size="lg"
+          width="full"
+          maxWidth="400px"
+          leftIcon={<PiSparkleFill />}
+        >
           Generate
         </Button>
       </MobileActionBar>
