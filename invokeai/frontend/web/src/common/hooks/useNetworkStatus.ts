@@ -9,12 +9,22 @@ export const useNetworkStatus = () => {
   const [wasOffline, setWasOffline] = useState(false);
 
   useEffect(() => {
+    let timeoutId: number | null = null;
+
     const handleOnline = () => {
       setIsOnline(true);
-      // Track if we were offline before
       setWasOffline(true);
+
+      // Clear any existing timeout
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+
       // Reset after showing reconnection message
-      setTimeout(() => setWasOffline(false), 3000);
+      timeoutId = window.setTimeout(() => {
+        setWasOffline(false);
+        timeoutId = null;
+      }, 3000);
     };
 
     const handleOffline = () => {
@@ -27,6 +37,11 @@ export const useNetworkStatus = () => {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+
+      // Clean up timeout on unmount
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
     };
   }, []);
 
