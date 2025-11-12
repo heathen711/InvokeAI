@@ -3,6 +3,7 @@ import { Flex } from '@invoke-ai/ui-library';
 import { useAppSelector } from 'app/store/storeHooks';
 import { MobileErrorBoundary } from 'features/ui/components/mobile/error/MobileErrorBoundary';
 import { MobileBottomTabBar } from 'features/ui/components/mobile/MobileBottomTabBar';
+import { MobileOfflineBanner } from 'features/ui/components/mobile/network/MobileOfflineBanner';
 import { MobileCreateTab } from 'features/ui/components/mobile/tabs/MobileCreateTab';
 import { MobileManageTab } from 'features/ui/components/mobile/tabs/MobileManageTab';
 import { MobileViewTab } from 'features/ui/components/mobile/tabs/MobileViewTab';
@@ -14,6 +15,7 @@ export const MobileLayout = memo(() => {
 
   return (
     <MobileErrorBoundary>
+      <MobileOfflineBanner />
       <Flex flexDirection="column" width="full" height="100vh" overflow="hidden" position="relative">
         {/* Content area - fills space above bottom tab bar */}
         <Flex
