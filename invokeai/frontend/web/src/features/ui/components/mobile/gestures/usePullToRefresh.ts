@@ -20,7 +20,6 @@ export const usePullToRefresh = (
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartY = useRef<number | null>(null);
-  const initialScrollTop = useRef<number>(0);
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
@@ -32,7 +31,6 @@ export const usePullToRefresh = (
       // Only trigger if at top of scroll
       if (container.scrollTop === 0) {
         touchStartY.current = e.touches[0]?.clientY ?? null;
-        initialScrollTop.current = container.scrollTop;
       }
     },
     [containerRef, isRefreshing]

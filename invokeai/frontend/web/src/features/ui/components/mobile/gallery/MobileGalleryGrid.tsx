@@ -80,7 +80,7 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Fetch images using RTK Query
-  const { data, isLoading, isFetching, refetch } = useListImagesQuery({
+  const { data, isLoading, refetch } = useListImagesQuery({
     board_id: boardId ?? undefined,
     limit: 50,
     offset: 0,
@@ -98,8 +98,8 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
     threshold: 80,
   });
 
-  // Loading state
-  if (isLoading || isFetching) {
+  // Loading state - only show skeleton on initial load, not during refresh
+  if (isLoading && !data) {
     return <MobileGallerySkeleton />;
   }
 
