@@ -1,8 +1,10 @@
 // src/features/ui/components/mobile/gallery/MobileGalleryGrid.tsx
-import { Box, Flex, Grid, Text } from '@invoke-ai/ui-library';
+import { Box, Flex, Grid, Icon, Text } from '@invoke-ai/ui-library';
+import { usePullToRefresh } from 'features/ui/components/mobile/gestures/usePullToRefresh';
 import { MobileGallerySkeleton } from 'features/ui/components/mobile/loading/MobileGallerySkeleton';
-import { memo, useCallback } from 'react';
-import { PiStarFill } from 'react-icons/pi';
+import { motion } from 'framer-motion';
+import { memo, useCallback, useRef } from 'react';
+import { PiArrowClockwiseBold, PiStarFill } from 'react-icons/pi';
 import { useListImagesQuery } from 'services/api/endpoints/images';
 import type { ImageDTO } from 'services/api/types';
 
@@ -75,12 +77,25 @@ GalleryGridItem.displayName = 'GalleryGridItem';
  * Displays images in a responsive grid layout optimized for touch
  */
 export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGalleryGridProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Fetch images using RTK Query
-  const { data, isLoading, isFetching } = useListImagesQuery({
+  const { data, isLoading, isFetching, refetch } = useListImagesQuery({
     board_id: boardId ?? undefined,
     limit: 50,
     offset: 0,
     is_intermediate: false,
+  });
+
+  // Pull-to-refresh functionality
+  const handleRefresh = useCallback(async () => {
+    // Trigger refetch of images
+    await refetch();
+  }, [refetch]);
+
+  const { isPulling, pullDistance, isRefreshing } = usePullToRefresh(containerRef, {
+    onRefresh: handleRefresh,
+    threshold: 80,
   });
 
   // Loading state
@@ -98,12 +113,37 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
   }
 
   return (
-    <Box width="full" height="full" overflowY="auto" px={2} py={2}>
-      <Grid templateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap={2} width="full" autoRows="150px">
-        {data.items.map((image) => (
-          <GalleryGridItem key={image.image_name} image={image} onClick={onImageSelect} />
-        ))}
-      </Grid>
+    <Box ref={containerRef} width="full" height="full" overflowY="auto" position="relative">
+      {/* Pull-to-refresh indicator */}
+      {(isPulling || isRefreshing) && (
+        <Flex
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          justifyContent="center"
+          alignItems="center"
+          height={`${pullDistance}px`}
+          bg="base.900"
+          zIndex={10}
+        >
+          <motion.div
+            animate={{ rotate: isRefreshing ? 360 : 0 }}
+            transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: 'linear' }}
+          >
+            <Icon as={PiArrowClockwiseBold} boxSize={6} color="blue.400" />
+          </motion.div>
+        </Flex>
+      )}
+
+      {/* Gallery content */}
+      <Box px={2} py={2}>
+        <Grid templateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap={2} width="full" autoRows="150px">
+          {data.items.map((image) => (
+            <GalleryGridItem key={image.image_name} image={image} onClick={onImageSelect} />
+          ))}
+        </Grid>
+      </Box>
     </Box>
   );
 });
