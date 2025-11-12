@@ -93,7 +93,7 @@ export const useTouchGestures = (ref: RefObject<HTMLElement>, handlers: TouchGes
       const distance = getDistance(touches[0], touches[1]);
       const lastDistance = stateRef.current.lastDistance;
 
-      if (lastDistance !== null) {
+      if (lastDistance !== null && lastDistance > 0) {
         const scale = distance / lastDistance;
         const distanceChanged = Math.abs(distance - lastDistance) > 1;
 
