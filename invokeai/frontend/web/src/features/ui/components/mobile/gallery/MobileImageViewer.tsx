@@ -3,7 +3,7 @@ import { Box, Flex, IconButton, Text } from '@invoke-ai/ui-library';
 import { useTouchGestures } from 'common/hooks/useTouchGestures';
 import type { TouchEvent } from 'react';
 import { memo, useCallback, useRef, useState } from 'react';
-import { PiX } from 'react-icons/pi';
+import { PiCaretLeft, PiCaretRight, PiShareFat, PiX } from 'react-icons/pi';
 import type { ImageDTO } from 'services/api/types';
 
 interface MobileImageViewerProps {
@@ -19,6 +19,8 @@ interface MobileImageViewerProps {
  * - Pinch-to-zoom (1x to 4x)
  * - Two-finger pan when zoomed
  * - Double-tap to reset zoom
+ * - Share via Web Share API
+ * - Navigation arrows (visible when not zoomed)
  */
 export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onClose }: MobileImageViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -46,6 +48,32 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
       setPosition({ x: 0, y: 0 });
     }
   }, [currentIndex, images.length]);
+
+  // Handle share via Web Share API
+  const handleShare = useCallback(async () => {
+    if (!currentImage || !('share' in navigator)) {
+      return;
+    }
+
+    try {
+      // Fetch the image as a blob
+      const response = await fetch(currentImage.image_url);
+      const blob = await response.blob();
+      const file = new File([blob], `${currentImage.image_name}.png`, { type: blob.type });
+
+      await navigator.share({
+        title: currentImage.image_name,
+        text: `Image: ${currentImage.width}×${currentImage.height}`,
+        files: [file],
+      });
+    } catch (error) {
+      // User cancelled or share failed - ignore
+      if (error instanceof Error && error.name !== 'AbortError') {
+        // eslint-disable-next-line no-console
+        console.error('Share failed:', error);
+      }
+    }
+  }, [currentImage]);
 
   // Handle pan gesture (when zoomed)
   const handlePan = useCallback((deltaX: number, deltaY: number) => {
@@ -140,7 +168,7 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Header with close button and counter */}
+      {/* Header with counter, share, and close buttons */}
       <Flex
         position="absolute"
         top={0}
@@ -156,14 +184,27 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
         <Text color="white" fontSize="md" fontWeight="medium">
           {currentIndex + 1} / {images.length}
         </Text>
-        <IconButton
-          aria-label="Close viewer"
-          icon={<PiX />}
-          onClick={onClose}
-          variant="ghost"
-          colorScheme="whiteAlpha"
-          size="lg"
-        />
+        <Flex gap={2}>
+          {/* Share button (only show if Web Share API is available) */}
+          {'share' in navigator && (
+            <IconButton
+              aria-label="Share image"
+              icon={<PiShareFat />}
+              onClick={handleShare}
+              variant="ghost"
+              colorScheme="whiteAlpha"
+              size="lg"
+            />
+          )}
+          <IconButton
+            aria-label="Close viewer"
+            icon={<PiX />}
+            onClick={onClose}
+            variant="ghost"
+            colorScheme="whiteAlpha"
+            size="lg"
+          />
+        </Flex>
       </Flex>
 
       {/* Image container with zoom/pan transform */}
@@ -177,6 +218,22 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
         justifyContent="center"
         style={{ touchAction: 'none' }}
       >
+        {/* Previous image arrow (only show when not zoomed) */}
+        {scale === 1 && currentIndex > 0 && (
+          <IconButton
+            aria-label="Previous image"
+            icon={<PiCaretLeft />}
+            onClick={handlePrevious}
+            position="absolute"
+            left={4}
+            variant="solid"
+            colorScheme="whiteAlpha"
+            size="lg"
+            opacity={0.8}
+            _hover={{ opacity: 1 }}
+          />
+        )}
+
         <Box
           as="img"
           src={currentImage.image_url}
@@ -189,6 +246,22 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
           transform={`scale(${scale}) translate(${position.x}px, ${position.y}px)`}
           transition={scale === 1 ? 'transform 0.2s ease-out' : 'none'}
         />
+
+        {/* Next image arrow (only show when not zoomed) */}
+        {scale === 1 && currentIndex < images.length - 1 && (
+          <IconButton
+            aria-label="Next image"
+            icon={<PiCaretRight />}
+            onClick={handleNext}
+            position="absolute"
+            right={4}
+            variant="solid"
+            colorScheme="whiteAlpha"
+            size="lg"
+            opacity={0.8}
+            _hover={{ opacity: 1 }}
+          />
+        )}
       </Box>
 
       {/* Image info footer */}
