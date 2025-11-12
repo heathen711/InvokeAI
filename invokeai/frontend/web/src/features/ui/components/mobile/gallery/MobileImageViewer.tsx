@@ -76,14 +76,17 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
   }, [currentImage]);
 
   // Handle pan gesture (when zoomed)
-  const handlePan = useCallback((deltaX: number, deltaY: number) => {
-    if (scale > 1) {
-      setPosition((prev) => ({
-        x: prev.x + deltaX,
-        y: prev.y + deltaY,
-      }));
-    }
-  }, [scale]);
+  const handlePan = useCallback(
+    (deltaX: number, deltaY: number) => {
+      if (scale > 1) {
+        setPosition((prev) => ({
+          x: prev.x + deltaX,
+          y: prev.y + deltaY,
+        }));
+      }
+    },
+    [scale]
+  );
 
   // Handle pinch gesture (zoom)
   const handlePinch = useCallback((_distance: number, scaleChange: number) => {
@@ -106,18 +109,24 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
   });
 
   // Handle swipe gestures for navigation (only when not zoomed)
-  const handleTouchStart = useCallback((e: TouchEvent<HTMLDivElement>) => {
-    if (scale === 1) {
-      touchStartX.current = e.touches[0]?.clientX ?? null;
-    }
-  }, [scale]);
+  const handleTouchStart = useCallback(
+    (e: TouchEvent<HTMLDivElement>) => {
+      if (scale === 1) {
+        touchStartX.current = e.touches[0]?.clientX ?? null;
+      }
+    },
+    [scale]
+  );
 
-  const handleTouchMove = useCallback((e: TouchEvent<HTMLDivElement>) => {
-    // Only prevent default for swipe navigation when not zoomed
-    if (scale === 1 && touchStartX.current !== null) {
-      e.preventDefault();
-    }
-  }, [scale]);
+  const handleTouchMove = useCallback(
+    (e: TouchEvent<HTMLDivElement>) => {
+      // Only prevent default for swipe navigation when not zoomed
+      if (scale === 1 && touchStartX.current !== null) {
+        e.preventDefault();
+      }
+    },
+    [scale]
+  );
 
   const handleTouchEnd = useCallback(
     (e: TouchEvent<HTMLDivElement>) => {

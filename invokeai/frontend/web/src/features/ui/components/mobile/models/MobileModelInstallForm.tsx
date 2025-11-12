@@ -96,11 +96,7 @@ export const MobileModelInstallForm = memo(({ onBack, onSuccess }: MobileModelIn
           </Text>
           <Flex flexDirection="column" gap={2}>
             <ExampleSource label="SDXL Turbo" value="stabilityai/sdxl-turbo" onClick={handleExampleSDXLTurbo} />
-            <ExampleSource
-              label="SD 1.5"
-              value="runwayml/stable-diffusion-v1-5"
-              onClick={handleExampleSD15}
-            />
+            <ExampleSource label="SD 1.5" value="runwayml/stable-diffusion-v1-5" onClick={handleExampleSD15} />
           </Flex>
         </Box>
       </Flex>

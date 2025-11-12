@@ -87,14 +87,7 @@ export const MobileCanvasView = memo(() => {
   }, [updateSize]);
 
   return (
-    <Flex
-      ref={containerRef}
-      flexDirection="column"
-      width="full"
-      height="full"
-      overflow="hidden"
-      position="relative"
-    >
+    <Flex ref={containerRef} flexDirection="column" width="full" height="full" overflow="hidden" position="relative">
       {/* Canvas area */}
       <Flex flex={1} position="relative" overflow="hidden" bg="base.900">
         {/* Canvas layers will be rendered here by ControlLayersCanvas */}

@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       host: '0.0.0.0',
+      allowedHosts: ['ai.server'],
     },
     test: {
       environment: 'happy-dom',
