@@ -13,6 +13,9 @@ interface MobileGalleryGridProps {
   boardId?: string | null;
 }
 
+// Transition constant for refresh icon animation
+const REFRESH_ICON_TRANSITION = { duration: 1, repeat: Infinity, ease: 'linear' as const };
+
 /**
  * Individual gallery grid item
  */
@@ -129,7 +132,7 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
         >
           <motion.div
             animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: 'linear' }}
+            transition={REFRESH_ICON_TRANSITION}
           >
             <Icon as={PiArrowClockwiseBold} boxSize={6} color="blue.400" />
           </motion.div>
