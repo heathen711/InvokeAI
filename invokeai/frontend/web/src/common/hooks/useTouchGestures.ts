@@ -13,6 +13,7 @@ interface TouchState {
   lastTouches: Touch[];
   lastDistance: number | null;
   lastTapTime: number;
+  touchStartPosition: { x: number; y: number } | null;
 }
 
 const getDistance = (touch1: Touch, touch2: Touch): number => {
@@ -43,6 +44,7 @@ export const useTouchGestures = (ref: RefObject<HTMLElement>, handlers: TouchGes
     lastTouches: [],
     lastDistance: null,
     lastTapTime: 0,
+    touchStartPosition: null,
   });
 
   // Memoize handlers to avoid recreating event listeners
@@ -54,6 +56,14 @@ export const useTouchGestures = (ref: RefObject<HTMLElement>, handlers: TouchGes
   const handleTouchStart = useCallback((e: TouchEvent) => {
     const touches = Array.from(e.touches);
     stateRef.current.lastTouches = touches;
+
+    // Track initial touch position for single-finger taps
+    if (touches.length === 1 && touches[0]) {
+      stateRef.current.touchStartPosition = {
+        x: touches[0].clientX,
+        y: touches[0].clientY,
+      };
+    }
 
     if (touches.length === 2 && touches[0] && touches[1]) {
       const distance = getDistance(touches[0], touches[1]);
@@ -107,15 +117,29 @@ export const useTouchGestures = (ref: RefObject<HTMLElement>, handlers: TouchGes
     const now = Date.now();
     const lastTapTime = stateRef.current.lastTapTime;
 
-    if (e.touches.length === 0) {
-      // Check for double tap (within 300ms)
-      if (now - lastTapTime < 300 && lastTapTime > 0) {
-        handlersRef.current.onDoubleTap?.();
-        stateRef.current.lastTapTime = 0;
-      } else {
-        handlersRef.current.onTap?.();
-        stateRef.current.lastTapTime = now;
+    if (e.touches.length === 0 && stateRef.current.touchStartPosition) {
+      const startPos = stateRef.current.touchStartPosition;
+      const lastTouch = stateRef.current.lastTouches[0];
+
+      if (lastTouch) {
+        const moveDistance = Math.sqrt(
+          Math.pow(lastTouch.clientX - startPos.x, 2) + Math.pow(lastTouch.clientY - startPos.y, 2)
+        );
+
+        // Only register tap if movement was minimal (< 10px)
+        if (moveDistance < 10) {
+          // Check for double tap (within 300ms)
+          if (now - lastTapTime < 300 && lastTapTime > 0) {
+            handlersRef.current.onDoubleTap?.();
+            stateRef.current.lastTapTime = 0;
+          } else {
+            handlersRef.current.onTap?.();
+            stateRef.current.lastTapTime = now;
+          }
+        }
       }
+
+      stateRef.current.touchStartPosition = null;
     }
 
     stateRef.current.lastDistance = null;
