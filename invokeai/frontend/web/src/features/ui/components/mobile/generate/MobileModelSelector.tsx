@@ -16,14 +16,22 @@ interface MobileModelSelectorProps {
  */
 export const MobileModelSelector = memo(({ modelName, modelImage, onPress }: MobileModelSelectorProps) => {
   return (
-    <Button onClick={onPress} width="full" height="auto" variant="outline" justifyContent="space-between" p={3}>
+    <Button
+      onClick={onPress}
+      width="full"
+      height="auto"
+      variant="outline"
+      justifyContent="space-between"
+      p={3}
+      aria-label={`Select model, currently: ${modelName}`}
+    >
       <Flex gap={3} alignItems="center" flex={1}>
-        {modelImage && <Image src={modelImage} alt={modelName} boxSize="40px" borderRadius="md" objectFit="cover" />}
+        {modelImage && <Image src={modelImage} alt="" boxSize="40px" borderRadius="md" objectFit="cover" />}
         <Text fontSize="md" fontWeight="medium" noOfLines={1}>
           {modelName}
         </Text>
       </Flex>
-      <PiCaretDown size={20} />
+      <PiCaretDown size={20} aria-hidden="true" />
     </Button>
   );
 });

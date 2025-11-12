@@ -130,10 +130,7 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
           bg="base.900"
           zIndex={10}
         >
-          <motion.div
-            animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={REFRESH_ICON_TRANSITION}
-          >
+          <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={REFRESH_ICON_TRANSITION}>
             <Icon as={PiArrowClockwiseBold} boxSize={6} color="blue.400" />
           </motion.div>
         </Flex>

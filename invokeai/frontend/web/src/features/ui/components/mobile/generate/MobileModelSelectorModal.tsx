@@ -76,7 +76,7 @@ export const MobileModelSelectorModal = memo(({ isOpen, onClose }: MobileModelSe
               <Text color="base.400">No models available</Text>
             </Flex>
           ) : (
-            <Flex flexDirection="column" gap={2} p={4}>
+            <Flex flexDirection="column" gap={2} p={4} role="radiogroup" aria-label="Available models">
               {models.map((model) => (
                 <ModelOption
                   key={model.key}
@@ -108,6 +108,7 @@ const ModelOption = memo(({ model, isSelected, onSelect }: ModelOptionProps) => 
 
   return (
     <Box
+      as="button"
       onClick={handleClick}
       p={4}
       bg={isSelected ? 'invokeBlue.600' : 'base.850'}
@@ -117,6 +118,11 @@ const ModelOption = memo(({ model, isSelected, onSelect }: ModelOptionProps) => 
       borderColor={isSelected ? 'invokeBlue.400' : 'base.700'}
       _hover={{ bg: isSelected ? 'invokeBlue.600' : 'base.800' }}
       transition="all 0.2s"
+      width="full"
+      textAlign="left"
+      role="radio"
+      aria-checked={isSelected}
+      aria-label={`Select model ${model.name}, ${model.base} ${model.format}`}
     >
       <Flex justifyContent="space-between" alignItems="start" mb={2}>
         <Text fontSize="md" fontWeight="semibold" color={isSelected ? 'white' : 'base.100'}>

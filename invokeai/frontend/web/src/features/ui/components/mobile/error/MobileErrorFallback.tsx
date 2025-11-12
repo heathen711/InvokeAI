@@ -24,7 +24,7 @@ export const MobileErrorFallback = memo(({ error, resetErrorBoundary }: MobileEr
       gap={4}
       bg="base.950"
     >
-      <Box color="red.400">
+      <Box color="red.400" aria-hidden="true">
         <PiWarningBold size={64} />
       </Box>
 

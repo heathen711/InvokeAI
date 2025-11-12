@@ -10,7 +10,7 @@ const SKELETON_INDICES = Array.from({ length: 6 }, (_, i) => i);
  */
 export const MobileGallerySkeleton = memo(() => {
   return (
-    <Box width="full" height="full" overflowY="auto" px={2} py={2}>
+    <Box width="full" height="full" overflowY="auto" px={2} py={2} aria-label="Loading gallery images">
       <Grid templateColumns="repeat(auto-fill, minmax(150px, 1fr))" gap={2} width="full" autoRows="150px">
         {SKELETON_INDICES.map((index) => (
           <Skeleton
@@ -20,6 +20,7 @@ export const MobileGallerySkeleton = memo(() => {
             borderRadius="md"
             startColor="base.800"
             endColor="base.700"
+            aria-hidden="true"
           />
         ))}
       </Grid>

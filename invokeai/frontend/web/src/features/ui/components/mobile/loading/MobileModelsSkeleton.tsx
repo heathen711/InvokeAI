@@ -10,9 +10,9 @@ const SKELETON_INDICES = Array.from({ length: 4 }, (_, i) => i);
  */
 export const MobileModelsSkeleton = memo(() => {
   return (
-    <Flex flexDirection="column" gap={2} p={4} overflow="auto">
+    <Flex flexDirection="column" gap={2} p={4} overflow="auto" aria-label="Loading models list">
       {SKELETON_INDICES.map((index) => (
-        <Box key={index} p={4} bg="base.850" borderRadius="md">
+        <Box key={index} p={4} bg="base.850" borderRadius="md" aria-hidden="true">
           <Skeleton height="20px" width="60%" mb={2} startColor="base.800" endColor="base.700" />
           <Flex gap={2} mb={2}>
             <Skeleton height="16px" width="50px" borderRadius="full" startColor="base.800" endColor="base.700" />
