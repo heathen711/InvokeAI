@@ -1,6 +1,7 @@
 // src/features/ui/components/mobile/tabs/MobileManageTab.tsx
 import { Flex } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import { MobileFadeTransition } from 'features/ui/components/mobile/animations/MobileFadeTransition';
 import { MobileDropdown, type MobileDropdownOption } from 'features/ui/components/mobile/MobileDropdown';
 import { MobileTopBar } from 'features/ui/components/mobile/MobileTopBar';
 import { MobileModelsMode } from 'features/ui/components/mobile/models/MobileModelsMode';
@@ -8,6 +9,7 @@ import { MobileQueueMode } from 'features/ui/components/mobile/queue/MobileQueue
 import { selectMobileManageMode } from 'features/ui/store/uiSelectors';
 import { uiSlice } from 'features/ui/store/uiSlice';
 import type { MobileManageMode } from 'features/ui/store/uiTypes';
+import { AnimatePresence } from 'framer-motion';
 import { memo, useCallback } from 'react';
 
 const MANAGE_MODE_OPTIONS: MobileDropdownOption<MobileManageMode>[] = [
@@ -32,8 +34,18 @@ export const MobileManageTab = memo(() => {
         <MobileDropdown value={activeMode} options={MANAGE_MODE_OPTIONS} onChange={handleModeChange} label="Mode" />
       </MobileTopBar>
       <Flex flex={1} overflow="hidden">
-        {activeMode === 'queue' && <MobileQueueMode />}
-        {activeMode === 'models' && <MobileModelsMode />}
+        <AnimatePresence mode="wait">
+          {activeMode === 'queue' && (
+            <MobileFadeTransition key="queue">
+              <MobileQueueMode />
+            </MobileFadeTransition>
+          )}
+          {activeMode === 'models' && (
+            <MobileFadeTransition key="models">
+              <MobileModelsMode />
+            </MobileFadeTransition>
+          )}
+        </AnimatePresence>
       </Flex>
     </Flex>
   );

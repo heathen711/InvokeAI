@@ -1,11 +1,15 @@
 // src/features/ui/components/mobile/tabs/MobileCreateTab.tsx
 import { Flex, Text } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import { MobileFadeTransition } from 'features/ui/components/mobile/animations/MobileFadeTransition';
+import { MobileCanvasView } from 'features/ui/components/mobile/canvas/MobileCanvasView';
+import { MobileGenerateForm } from 'features/ui/components/mobile/generate/MobileGenerateForm';
 import { MobileDropdown, type MobileDropdownOption } from 'features/ui/components/mobile/MobileDropdown';
 import { MobileTopBar } from 'features/ui/components/mobile/MobileTopBar';
 import { selectMobileCreateMode } from 'features/ui/store/uiSelectors';
 import { uiSlice } from 'features/ui/store/uiSlice';
 import type { MobileCreateMode } from 'features/ui/store/uiTypes';
+import { AnimatePresence } from 'framer-motion';
 import { memo, useCallback } from 'react';
 
 const CREATE_MODE_OPTIONS: MobileDropdownOption<MobileCreateMode>[] = [
@@ -31,8 +35,26 @@ export const MobileCreateTab = memo(() => {
       <MobileTopBar>
         <MobileDropdown value={activeMode} options={CREATE_MODE_OPTIONS} onChange={handleModeChange} label="Mode" />
       </MobileTopBar>
-      <Flex flex={1} justifyContent="center" alignItems="center" overflow="auto">
-        <Text color="base.400">Create Tab - {activeMode} mode (content coming in Phase 2)</Text>
+      <Flex flex={1} overflow="hidden">
+        <AnimatePresence mode="wait">
+          {activeMode === 'generate' && (
+            <MobileFadeTransition key="generate">
+              <MobileGenerateForm />
+            </MobileFadeTransition>
+          )}
+          {activeMode === 'canvas' && (
+            <MobileFadeTransition key="canvas">
+              <MobileCanvasView />
+            </MobileFadeTransition>
+          )}
+          {activeMode !== 'generate' && activeMode !== 'canvas' && (
+            <MobileFadeTransition key={activeMode}>
+              <Flex flex={1} justifyContent="center" alignItems="center">
+                <Text color="base.400">Create Tab - {activeMode} mode (coming soon)</Text>
+              </Flex>
+            </MobileFadeTransition>
+          )}
+        </AnimatePresence>
       </Flex>
     </Flex>
   );
