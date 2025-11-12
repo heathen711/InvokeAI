@@ -7,6 +7,7 @@ import {
   FormControl,
   FormLabel,
   Textarea,
+  useDisclosure,
   VStack,
 } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
@@ -24,6 +25,7 @@ import {
 import { useEnqueueGenerate } from 'features/queue/hooks/useEnqueueGenerate';
 import { useIsQueueMutationInProgress } from 'features/queue/hooks/useIsQueueMutationInProgress';
 import { MobileModelSelector } from 'features/ui/components/mobile/generate/MobileModelSelector';
+import { MobileModelSelectorModal } from 'features/ui/components/mobile/generate/MobileModelSelectorModal';
 import { MobileActionBar } from 'features/ui/components/mobile/MobileActionBar';
 import type { ChangeEvent } from 'react';
 import { memo, useCallback } from 'react';
@@ -64,16 +66,15 @@ export const MobileGenerateForm = memo(() => {
   const enqueueGenerate = useEnqueueGenerate();
   const isLoading = useIsQueueMutationInProgress();
   const canGenerate = model !== null && !isLoading;
+  const modelSelectorModal = useDisclosure();
 
   const handleGenerate = useCallback(() => {
     enqueueGenerate(false);
   }, [enqueueGenerate]);
 
   const handleModelPress = useCallback(() => {
-    // TODO: Open model selector modal in Phase 5 Task 2
-    // eslint-disable-next-line no-console
-    console.log('Open model selector');
-  }, []);
+    modelSelectorModal.onOpen();
+  }, [modelSelectorModal]);
 
   const handlePromptChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -116,7 +117,7 @@ export const MobileGenerateForm = memo(() => {
           {/* Model Selector */}
           <FormControl>
             <FormLabel>Model</FormLabel>
-            <MobileModelSelector modelName="Stable Diffusion XL Base" onPress={handleModelPress} />
+            <MobileModelSelector modelName={model?.name ?? 'No model selected'} onPress={handleModelPress} />
           </FormControl>
 
           {/* Prompt */}
@@ -213,6 +214,9 @@ export const MobileGenerateForm = memo(() => {
           {model ? 'Generate' : 'Select Model First'}
         </Button>
       </MobileActionBar>
+
+      {/* Model Selector Modal */}
+      <MobileModelSelectorModal isOpen={modelSelectorModal.isOpen} onClose={modelSelectorModal.onClose} />
     </>
   );
 });
