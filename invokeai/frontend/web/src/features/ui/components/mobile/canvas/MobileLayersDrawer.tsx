@@ -1,4 +1,4 @@
-import { Flex, Modal, ModalBody, ModalContent, ModalHeader, ModalOverlay, Text } from '@invoke-ai/ui-library';
+import { Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Text } from '@invoke-ai/ui-library';
 import { memo } from 'react';
 
 interface MobileLayersDrawerProps {
@@ -8,24 +8,24 @@ interface MobileLayersDrawerProps {
 
 /**
  * Mobile layers drawer
- * Shows canvas layers in a modal drawer
+ * Shows canvas layers in a bottom drawer
  */
 export const MobileLayersDrawer = memo(({ isOpen, onClose }: MobileLayersDrawerProps) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="full">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Canvas Layers</ModalHeader>
-        <ModalBody>
+    <Drawer isOpen={isOpen} onClose={onClose} placement="bottom">
+      <DrawerOverlay />
+      <DrawerContent>
+        <DrawerHeader>Canvas Layers</DrawerHeader>
+        <DrawerBody>
           <Flex flexDirection="column" gap={2} pb={4}>
             <Text color="base.400" fontSize="sm">
               Layer controls will integrate with ControlLayers feature
             </Text>
             {/* Future: Integrate with controlLayers Redux state */}
           </Flex>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </DrawerBody>
+      </DrawerContent>
+    </Drawer>
   );
 });
 

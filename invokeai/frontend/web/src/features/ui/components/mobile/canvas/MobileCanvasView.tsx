@@ -82,7 +82,7 @@ export const MobileCanvasView = memo(() => {
     updateSize();
     window.addEventListener('resize', updateSize);
     return () => {
-      return window.removeEventListener('resize', updateSize);
+      window.removeEventListener('resize', updateSize);
     };
   }, [updateSize]);
 
