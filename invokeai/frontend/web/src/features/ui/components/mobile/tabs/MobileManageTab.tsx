@@ -3,6 +3,7 @@ import { Flex, Text } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { MobileDropdown, type MobileDropdownOption } from 'features/ui/components/mobile/MobileDropdown';
 import { MobileTopBar } from 'features/ui/components/mobile/MobileTopBar';
+import { MobileQueueMode } from 'features/ui/components/mobile/queue/MobileQueueMode';
 import { selectMobileManageMode } from 'features/ui/store/uiSelectors';
 import { uiSlice } from 'features/ui/store/uiSlice';
 import type { MobileManageMode } from 'features/ui/store/uiTypes';
@@ -29,8 +30,13 @@ export const MobileManageTab = memo(() => {
       <MobileTopBar>
         <MobileDropdown value={activeMode} options={MANAGE_MODE_OPTIONS} onChange={handleModeChange} label="Mode" />
       </MobileTopBar>
-      <Flex flex={1} justifyContent="center" alignItems="center" overflow="auto">
-        <Text color="base.400">Manage Tab - {activeMode} mode (content coming in Phase 3)</Text>
+      <Flex flex={1} overflow="hidden">
+        {activeMode === 'queue' && <MobileQueueMode />}
+        {activeMode !== 'queue' && (
+          <Flex flex={1} justifyContent="center" alignItems="center">
+            <Text color="base.400">Manage Tab - {activeMode} mode (content coming in next tasks)</Text>
+          </Flex>
+        )}
       </Flex>
     </Flex>
   );
