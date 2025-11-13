@@ -48,11 +48,7 @@ export const MobileViewTab = memo(() => {
     <Flex flexDirection="column" width="full" height="full" overflow="hidden">
       {/* Gallery Grid - fills remaining space */}
       <Flex flex={1} overflow="hidden">
-        <MobileGalleryGrid
-          onImageSelect={handleImageSelect}
-          boardId={selectedBoardId}
-          galleryView={galleryView}
-        />
+        <MobileGalleryGrid onImageSelect={handleImageSelect} boardId={selectedBoardId} galleryView={galleryView} />
       </Flex>
 
       {/* Persistent bottom board selector bar */}
@@ -60,11 +56,7 @@ export const MobileViewTab = memo(() => {
 
       {/* Image Viewer (full-screen overlay) */}
       {viewerOpen && selectedImage && images.length > 0 && (
-        <MobileImageViewer
-          images={images}
-          currentIndex={Math.max(0, currentIndex)}
-          onClose={handleViewerClose}
-        />
+        <MobileImageViewer images={images} currentIndex={Math.max(0, currentIndex)} onClose={handleViewerClose} />
       )}
     </Flex>
   );

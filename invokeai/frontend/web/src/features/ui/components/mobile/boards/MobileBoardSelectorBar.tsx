@@ -29,9 +29,7 @@ export const MobileBoardSelectorBar = memo(({ mode }: MobileBoardSelectorBarProp
 
   const isViewingImages = galleryView === 'images';
   const ToggleIcon = isViewingImages ? PiFile : PiImage;
-  const toggleText = isViewingImages
-    ? t('gallery.switchToAssets')
-    : t('gallery.switchToImages');
+  const toggleText = isViewingImages ? t('gallery.switchToAssets') : t('gallery.switchToImages');
 
   return (
     <Flex

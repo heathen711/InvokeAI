@@ -7,7 +7,6 @@ import { memo, useCallback, useRef, useState } from 'react';
 import type { ImageDTO } from 'services/api/types';
 
 import { MobileActionSheet } from './MobileActionSheet';
-import { MobileActionSheetSubmenu } from './MobileActionSheetSubmenu';
 import { MobileImageViewerControls } from './MobileImageViewerControls';
 import { useActionSheetState } from './useActionSheetState';
 import { useAutoHideControls } from './useAutoHideControls';
@@ -217,51 +216,14 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
           canGoNext={currentIndex < images.length - 1}
         />
 
-        {/* Action sheet menu */}
-        <MobileActionSheet isOpen={menuOpen && !currentSubmenu} onClose={closeMenu} onOpenSubmenu={openSubmenu} />
-
-        {/* Submenu sheets */}
-        {currentSubmenu === 'recall-metadata' && (
-          <MobileActionSheetSubmenu
-            isOpen={menuOpen}
-            onClose={closeMenu}
-            onBack={closeSubmenu}
-            title="Recall Metadata"
-            options={[
-              { label: 'Canvas', onClick: () => closeMenu() },
-              { label: 'Generate', onClick: () => closeMenu() },
-              { label: 'Upscale', onClick: () => closeMenu() },
-            ]}
-          />
-        )}
-        {currentSubmenu === 'new-canvas' && (
-          <MobileActionSheetSubmenu
-            isOpen={menuOpen}
-            onClose={closeMenu}
-            onBack={closeSubmenu}
-            title="New Canvas from Image"
-            options={[
-              { label: 'Raster Layer', onClick: () => closeMenu() },
-              { label: 'Control Layer', onClick: () => closeMenu() },
-              { label: 'Inpaint Mask', onClick: () => closeMenu() },
-              { label: 'Regional Guidance', onClick: () => closeMenu() },
-            ]}
-          />
-        )}
-        {currentSubmenu === 'new-layer' && (
-          <MobileActionSheetSubmenu
-            isOpen={menuOpen}
-            onClose={closeMenu}
-            onBack={closeSubmenu}
-            title="New Layer from Image"
-            options={[
-              { label: 'Raster Layer', onClick: () => closeMenu() },
-              { label: 'Control Layer', onClick: () => closeMenu() },
-              { label: 'Inpaint Mask', onClick: () => closeMenu() },
-              { label: 'Regional Guidance', onClick: () => closeMenu() },
-            ]}
-          />
-        )}
+        {/* Action sheet menu with submenus */}
+        <MobileActionSheet
+          isOpen={menuOpen}
+          onClose={closeMenu}
+          onOpenSubmenu={openSubmenu}
+          currentSubmenu={currentSubmenu}
+          onCloseSubmenu={closeSubmenu}
+        />
       </Flex>
     </ImageDTOContextProvider>
   );

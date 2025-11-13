@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 interface SubmenuOption {
   label: string;
   onClick: () => void;
+  isDisabled?: boolean;
 }
 
 interface MobileActionSheetSubmenuProps {
@@ -50,13 +51,14 @@ export const MobileActionSheetSubmenu = memo(
               <Flex
                 key={index}
                 as="button"
-                onClick={option.onClick}
+                onClick={option.isDisabled ? undefined : option.onClick}
                 alignItems="center"
                 gap={3}
                 py={4}
                 px={4}
-                _hover={{ bg: 'base.750' }}
-                cursor="pointer"
+                _hover={option.isDisabled ? {} : { bg: 'base.750' }}
+                cursor={option.isDisabled ? 'not-allowed' : 'pointer'}
+                opacity={option.isDisabled ? 0.5 : 1}
                 w="full"
                 textAlign="left"
                 borderBottom={index < options.length - 1 ? '1px solid' : 'none'}

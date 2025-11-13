@@ -17,9 +17,7 @@ export interface UseActionSheetStateReturn {
   closeSubmenu: () => void;
 }
 
-export function useActionSheetState(
-  options: UseActionSheetStateOptions = {}
-): UseActionSheetStateReturn {
+export function useActionSheetState(options: UseActionSheetStateOptions = {}): UseActionSheetStateReturn {
   const { onMenuOpen, onMenuClose, onSubmenuOpen, onSubmenuClose } = options;
 
   const [menuOpen, setMenuOpen] = useState(false);
