@@ -2,8 +2,9 @@
 import { Box, Flex, Image, Text } from '@invoke-ai/ui-library';
 import { skipToken } from '@reduxjs/toolkit/query';
 import type { BoardId } from 'features/gallery/store/types';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { PiCheckBold, PiFolderSimple } from 'react-icons/pi';
+import { useGetBoardAssetsTotalQuery, useGetBoardImagesTotalQuery } from 'services/api/endpoints/boards';
 import { useGetImageDTOQuery } from 'services/api/endpoints/images';
 import { useBoardName } from 'services/api/hooks/useBoardName';
 import type { BoardDTO } from 'services/api/types';
@@ -25,13 +26,43 @@ export const MobileBoardListItem = memo(({ board, isSelected, onSelect }: Mobile
     board === 'none' ? skipToken : (board.cover_image_name ?? skipToken)
   );
 
+  // Get totals for "none" board from API
+  const { imagesTotal } = useGetBoardImagesTotalQuery(boardId, {
+    selectFromResult: ({ data }) => ({
+      imagesTotal: data?.total ?? 0,
+    }),
+    skip: board !== 'none',
+  });
+
+  const { assetsTotal } = useGetBoardAssetsTotalQuery(boardId, {
+    selectFromResult: ({ data }) => ({
+      assetsTotal: data?.total ?? 0,
+    }),
+    skip: board !== 'none',
+  });
+
   const handleSelect = useCallback(() => {
     onSelect(boardId);
   }, [boardId, onSelect]);
 
-  // Determine image count
-  const imageCount = board === 'none' ? 0 : board.image_count;
-  const displayCount = imageCount === 0 ? 'Empty' : `${imageCount} images`;
+  // Determine counts - use API data for "none" board, DTO data for regular boards
+  const imageCount = board === 'none' ? imagesTotal : board.image_count;
+  const assetCount = board === 'none' ? assetsTotal : board.asset_count;
+  const totalCount = imageCount + assetCount;
+
+  const displayCount = useMemo(() => {
+    if (totalCount === 0) {
+      return 'Empty';
+    }
+    const parts = [];
+    if (imageCount > 0) {
+      parts.push(`${imageCount} image${imageCount !== 1 ? 's' : ''}`);
+    }
+    if (assetCount > 0) {
+      parts.push(`${assetCount} asset${assetCount !== 1 ? 's' : ''}`);
+    }
+    return parts.join(', ');
+  }, [imageCount, assetCount, totalCount]);
 
   return (
     <Flex

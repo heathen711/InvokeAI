@@ -884,11 +884,11 @@ export const MobileGenerateForm = memo(() => {
 
       {/* Fixed Action Bar */}
       <MobileActionBar>
-        <Flex pos="relative" w="full" maxWidth="400px" mx="auto" pr="72px" flexDirection="column" gap={3}>
+        <Flex pos="relative" w="full" maxWidth="400px" mx="auto" flexDirection="column" gap={3}>
           {/* Board selector - above Generate button for one-handed reach */}
           <MobileBoardSelector />
 
-          <Flex pos="relative" w="full">
+          <Flex pos="relative" w="full" pr="72px">
             <QueueIterationsNumberInput />
             <Button
               onClick={handleGenerate}

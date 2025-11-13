@@ -121,6 +121,7 @@
         "delete": "Delete",
         "details": "Details",
         "direction": "Direction",
+        "done": "Done",
         "ipAdapter": "IP Adapter",
         "t2iAdapter": "T2I Adapter",
         "positivePrompt": "Positive Prompt",
