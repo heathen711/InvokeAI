@@ -89,7 +89,7 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId, galleryView = '
 
   // Fetch images using RTK Query
   const { data, isLoading, refetch } = useListImagesQuery({
-    board_id: boardId === 'none' ? undefined : boardId,
+    board_id: boardId ?? 'none',
     categories,
     limit: 50,
     offset: 0,
