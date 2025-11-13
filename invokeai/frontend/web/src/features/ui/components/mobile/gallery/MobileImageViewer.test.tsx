@@ -75,10 +75,14 @@ describe('MobileImageViewer', () => {
     expect(screen.getByAltText('img1')).toBeDefined();
   });
 
-  it('shows image counter', () => {
+  it('shows navigation controls', () => {
     renderWithProviders(<MobileImageViewer images={mockImages} currentIndex={1} onClose={vi.fn()} />);
 
-    expect(screen.getByText('2 / 3')).toBeDefined();
+    // Check for Previous, Menu, Close, and Next buttons
+    expect(screen.getByRole('button', { name: /previous/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /menu/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /close/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /next/i })).toBeDefined();
   });
 
   it('shows close button', () => {
@@ -105,24 +109,24 @@ describe('MobileImageViewer', () => {
     // Test starting at index 1
     renderWithProviders(<MobileImageViewer images={mockImages} currentIndex={1} onClose={vi.fn()} />);
     expect(screen.getByAltText('img2')).toBeDefined();
-    expect(screen.getByText('2 / 3')).toBeDefined();
 
     cleanup();
 
     // Test starting at index 2
     renderWithProviders(<MobileImageViewer images={mockImages} currentIndex={2} onClose={vi.fn()} />);
     expect(screen.getByAltText('img3')).toBeDefined();
-    expect(screen.getByText('3 / 3')).toBeDefined();
   });
 
-  it('renders with zoom and pan capabilities', () => {
+  it('renders with controls', () => {
     renderWithProviders(<MobileImageViewer images={mockImages} currentIndex={0} onClose={vi.fn()} />);
 
     // Verify the dialog is rendered
     const containers = screen.getAllByRole('dialog');
     expect(containers.length).toBeGreaterThan(0);
 
-    // Verify zoom indicator is present
-    expect(screen.getByText('Zoom: 100%')).toBeDefined();
+    // Verify controls are present
+    expect(screen.getByRole('button', { name: /previous/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /next/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /menu/i })).toBeDefined();
   });
 });

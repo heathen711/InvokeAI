@@ -1,10 +1,16 @@
 // src/features/ui/components/mobile/gallery/MobileImageViewer.tsx
-import { Box, Flex, IconButton, Text } from '@invoke-ai/ui-library';
+import { Box, Flex } from '@invoke-ai/ui-library';
 import { useTouchGestures } from 'common/hooks/useTouchGestures';
+import { ImageDTOContextProvider } from 'features/gallery/contexts/ImageDTOContext';
 import type { TouchEvent } from 'react';
 import { memo, useCallback, useRef, useState } from 'react';
-import { PiCaretLeft, PiCaretRight, PiShareFat, PiX } from 'react-icons/pi';
 import type { ImageDTO } from 'services/api/types';
+
+import { MobileActionSheet } from './MobileActionSheet';
+import { MobileActionSheetSubmenu } from './MobileActionSheetSubmenu';
+import { MobileImageViewerControls } from './MobileImageViewerControls';
+import { useActionSheetState } from './useActionSheetState';
+import { useAutoHideControls } from './useAutoHideControls';
 
 interface MobileImageViewerProps {
   images: ImageDTO[];
@@ -19,8 +25,8 @@ interface MobileImageViewerProps {
  * - Pinch-to-zoom (1x to 4x)
  * - Two-finger pan when zoomed
  * - Double-tap to reset zoom
- * - Share via Web Share API
- * - Navigation arrows (visible when not zoomed)
+ * - Auto-hiding control bar
+ * - Full context menu via action sheet
  */
 export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onClose }: MobileImageViewerProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -31,14 +37,25 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
 
   const currentImage = images[currentIndex];
 
+  // Auto-hide controls
+  const { controlsVisible, showControls, hideControls, resetTimer, pauseAutoHide, resumeAutoHide } =
+    useAutoHideControls();
+
+  // Action sheet state
+  const { menuOpen, currentSubmenu, openMenu, closeMenu, openSubmenu, closeSubmenu } = useActionSheetState({
+    onMenuOpen: pauseAutoHide,
+    onMenuClose: resumeAutoHide,
+  });
+
   // Navigate to previous image
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
       setScale(1);
       setPosition({ x: 0, y: 0 });
+      resetTimer();
     }
-  }, [currentIndex]);
+  }, [currentIndex, resetTimer]);
 
   // Navigate to next image
   const handleNext = useCallback(() => {
@@ -46,34 +63,9 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
       setCurrentIndex((prev) => prev + 1);
       setScale(1);
       setPosition({ x: 0, y: 0 });
+      resetTimer();
     }
-  }, [currentIndex, images.length]);
-
-  // Handle share via Web Share API
-  const handleShare = useCallback(async () => {
-    if (!currentImage || !('share' in navigator)) {
-      return;
-    }
-
-    try {
-      // Fetch the image as a blob
-      const response = await fetch(currentImage.image_url);
-      const blob = await response.blob();
-      const file = new File([blob], `${currentImage.image_name}.png`, { type: blob.type });
-
-      await navigator.share({
-        title: currentImage.image_name,
-        text: `Image: ${currentImage.width}×${currentImage.height}`,
-        files: [file],
-      });
-    } catch (error) {
-      // User cancelled or share failed - ignore
-      if (error instanceof Error && error.name !== 'AbortError') {
-        // eslint-disable-next-line no-console
-        console.error('Share failed:', error);
-      }
-    }
-  }, [currentImage]);
+  }, [currentIndex, images.length, resetTimer]);
 
   // Handle pan gesture (when zoomed)
   const handlePan = useCallback(
@@ -107,6 +99,15 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
     onPinch: handlePinch,
     onDoubleTap: handleDoubleTap,
   });
+
+  // Handle tap to toggle controls
+  const handleImageTap = useCallback(() => {
+    if (controlsVisible) {
+      resetTimer();
+    } else {
+      showControls();
+    }
+  }, [controlsVisible, resetTimer, showControls]);
 
   // Handle swipe gestures for navigation (only when not zoomed)
   const handleTouchStart = useCallback(
@@ -143,6 +144,7 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
       const threshold = 50; // Minimum swipe distance
 
       if (Math.abs(deltaX) > threshold) {
+        hideControls(); // Hide controls during swipe
         if (deltaX > 0) {
           handlePrevious();
         } else {
@@ -152,7 +154,7 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
 
       touchStartX.current = null;
     },
-    [scale, handlePrevious, handleNext]
+    [scale, handlePrevious, handleNext, hideControls]
   );
 
   if (!currentImage) {
@@ -160,114 +162,108 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
   }
 
   return (
-    <Flex
-      role="dialog"
-      aria-label="Image viewer"
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      zIndex={9999}
-      bg="black"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Empty header for consistent spacing */}
-      <Box position="absolute" top={0} left={0} right={0} h="60px" pointerEvents="none" />
-
-      {/* Image container with zoom/pan transform */}
-      <Box
-        ref={imageContainerRef}
-        position="relative"
-        width="100%"
-        height="100%"
-        display="flex"
+    <ImageDTOContextProvider value={currentImage}>
+      <Flex
+        role="dialog"
+        aria-label="Image viewer"
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        zIndex={9999}
+        bg="black"
+        flexDirection="column"
         alignItems="center"
         justifyContent="center"
-        style={{ touchAction: 'none' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
+        {/* Image container with zoom/pan transform */}
         <Box
-          as="img"
-          src={currentImage.image_url}
-          alt={currentImage.image_name}
-          maxWidth="100%"
-          maxHeight="100%"
-          objectFit="contain"
-          userSelect="none"
-          pointerEvents="none"
-          transform={`scale(${scale}) translate(${position.x}px, ${position.y}px)`}
-          transition={scale === 1 ? 'transform 0.2s ease-out' : 'none'}
-        />
-      </Box>
-
-      {/* Image info and navigation footer */}
-      <Flex position="absolute" bottom={0} left={0} right={0} flexDirection="column" bg="blackAlpha.700" gap={2} pb={2}>
-        {/* Navigation buttons (only show when not zoomed) */}
-        {scale === 1 && (
-          <Flex justifyContent="center" alignItems="center" gap={4} px={4} pt={2}>
-            <IconButton
-              aria-label="Previous image"
-              icon={<PiCaretLeft />}
-              onClick={handlePrevious}
-              isDisabled={currentIndex === 0}
-              variant="solid"
-              colorScheme="invokeBlue"
-              size="lg"
-              opacity={currentIndex === 0 ? 0.4 : 1}
-            />
-            <Text color="white" fontSize="md" fontWeight="medium">
-              {currentIndex + 1} / {images.length}
-            </Text>
-            <IconButton
-              aria-label="Next image"
-              icon={<PiCaretRight />}
-              onClick={handleNext}
-              isDisabled={currentIndex === images.length - 1}
-              variant="solid"
-              colorScheme="invokeBlue"
-              size="lg"
-              opacity={currentIndex === images.length - 1 ? 0.4 : 1}
-            />
-          </Flex>
-        )}
-        {/* Image info */}
-        <Flex px={4} justifyContent="space-between" alignItems="center" fontSize="sm" color="base.300">
-          <Text>
-            {currentImage.width} × {currentImage.height}
-          </Text>
-          <Text>Zoom: {Math.round(scale * 100)}%</Text>
-        </Flex>
-        {/* Action buttons at bottom for one-handed use */}
-        <Flex px={4} pt={2} gap={3} justifyContent="stretch">
-          {/* Share button (only show if Web Share API is available) */}
-          {'share' in navigator && (
-            <IconButton
-              aria-label="Share image"
-              icon={<PiShareFat />}
-              onClick={handleShare}
-              variant="solid"
-              colorScheme="invokeBlue"
-              size="lg"
-              w="full"
-            />
-          )}
-          <IconButton
-            aria-label="Close viewer"
-            icon={<PiX />}
-            onClick={onClose}
-            variant="solid"
-            colorScheme="invokeBlue"
-            size="lg"
-            w="full"
+          ref={imageContainerRef}
+          position="relative"
+          width="100%"
+          height="100%"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          style={{ touchAction: 'none' }}
+          onClick={handleImageTap}
+        >
+          <Box
+            as="img"
+            src={currentImage.image_url}
+            alt={currentImage.image_name}
+            maxWidth="100%"
+            maxHeight="100%"
+            objectFit="contain"
+            userSelect="none"
+            pointerEvents="none"
+            transform={`scale(${scale}) translate(${position.x}px, ${position.y}px)`}
+            transition={scale === 1 ? 'transform 0.2s ease-out' : 'none'}
           />
-        </Flex>
+        </Box>
+
+        {/* Auto-hiding control bar */}
+        <MobileImageViewerControls
+          visible={controlsVisible}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onClose={onClose}
+          onMenu={openMenu}
+          canGoPrevious={currentIndex > 0}
+          canGoNext={currentIndex < images.length - 1}
+        />
+
+        {/* Action sheet menu */}
+        <MobileActionSheet isOpen={menuOpen && !currentSubmenu} onClose={closeMenu} onOpenSubmenu={openSubmenu} />
+
+        {/* Submenu sheets */}
+        {currentSubmenu === 'recall-metadata' && (
+          <MobileActionSheetSubmenu
+            isOpen={menuOpen}
+            onClose={closeMenu}
+            onBack={closeSubmenu}
+            title="Recall Metadata"
+            options={[
+              { label: 'Canvas', onClick: () => closeMenu() },
+              { label: 'Generate', onClick: () => closeMenu() },
+              { label: 'Upscale', onClick: () => closeMenu() },
+            ]}
+          />
+        )}
+        {currentSubmenu === 'new-canvas' && (
+          <MobileActionSheetSubmenu
+            isOpen={menuOpen}
+            onClose={closeMenu}
+            onBack={closeSubmenu}
+            title="New Canvas from Image"
+            options={[
+              { label: 'Raster Layer', onClick: () => closeMenu() },
+              { label: 'Control Layer', onClick: () => closeMenu() },
+              { label: 'Inpaint Mask', onClick: () => closeMenu() },
+              { label: 'Regional Guidance', onClick: () => closeMenu() },
+            ]}
+          />
+        )}
+        {currentSubmenu === 'new-layer' && (
+          <MobileActionSheetSubmenu
+            isOpen={menuOpen}
+            onClose={closeMenu}
+            onBack={closeSubmenu}
+            title="New Layer from Image"
+            options={[
+              { label: 'Raster Layer', onClick: () => closeMenu() },
+              { label: 'Control Layer', onClick: () => closeMenu() },
+              { label: 'Inpaint Mask', onClick: () => closeMenu() },
+              { label: 'Regional Guidance', onClick: () => closeMenu() },
+            ]}
+          />
+        )}
       </Flex>
-    </Flex>
+    </ImageDTOContextProvider>
   );
 });
 
