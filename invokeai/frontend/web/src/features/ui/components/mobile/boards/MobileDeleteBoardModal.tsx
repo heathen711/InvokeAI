@@ -12,11 +12,11 @@ import {
   useToast,
   VStack,
 } from '@invoke-ai/ui-library';
+import { useStore } from '@nanostores/react';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { $boardToDelete } from 'features/gallery/store/boardToDelete';
 import { selectSelectedBoardId } from 'features/gallery/store/gallerySelectors';
 import { boardIdSelected } from 'features/gallery/store/gallerySlice';
-import { useStore } from '@nanostores/react';
 import { memo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -41,23 +41,24 @@ export const MobileDeleteBoardModal = memo(() => {
   const selectedBoardId = useAppSelector(selectSelectedBoardId);
   const dispatch = useAppDispatch();
 
-  const { data: imageNames, isFetching } = useListAllImageNamesForBoardQuery(
+  const { data: imageNames } = useListAllImageNamesForBoardQuery(
     boardToDelete === 'none'
-      ? { board_id: 'none' }
+      ? { board_id: 'none', categories: undefined, is_intermediate: undefined }
       : boardToDelete
-        ? { board_id: boardToDelete.board_id }
-        : { board_id: '' }, // Empty string when null
+        ? { board_id: boardToDelete.board_id, categories: undefined, is_intermediate: undefined }
+        : { board_id: '', categories: undefined, is_intermediate: undefined }, // Empty string when null
     { skip: !boardToDelete }
   );
 
   const [deleteBoardOnly, { isLoading: isDeleteBoardOnlyLoading }] = useDeleteBoardMutation();
-  const [deleteBoardAndImages, { isLoading: isDeleteBoardAndImagesLoading }] =
-    useDeleteBoardAndImagesMutation();
+  const [deleteBoardAndImages, { isLoading: isDeleteBoardAndImagesLoading }] = useDeleteBoardAndImagesMutation();
 
   const isLoading = isDeleteBoardOnlyLoading || isDeleteBoardAndImagesLoading;
 
   const handleDeleteBoardOnly = useCallback(async () => {
-    if (!boardToDelete || boardToDelete === 'none') return;
+    if (!boardToDelete || boardToDelete === 'none') {
+      return;
+    }
 
     try {
       // If deleting currently selected board, switch to uncategorized
@@ -83,7 +84,9 @@ export const MobileDeleteBoardModal = memo(() => {
   }, [boardToDelete, selectedBoardId, deleteBoardOnly, dispatch, toast, t]);
 
   const handleDeleteBoardAndImages = useCallback(async () => {
-    if (!boardToDelete || boardToDelete === 'none') return;
+    if (!boardToDelete || boardToDelete === 'none') {
+      return;
+    }
 
     try {
       if (selectedBoardId === boardToDelete.board_id) {
@@ -113,7 +116,7 @@ export const MobileDeleteBoardModal = memo(() => {
 
   const isUncategorized = boardToDelete === 'none';
   const imageCount = imageNames?.length ?? 0;
-  const boardName = isUncategorized ? t('boards.uncategorizedImages') : boardToDelete?.board_name ?? '';
+  const boardName = isUncategorized ? t('boards.uncategorizedImages') : (boardToDelete?.board_name ?? '');
 
   return (
     <AlertDialog isOpen={Boolean(boardToDelete)} onClose={handleClose} leastDestructiveRef={cancelRef} isCentered>
@@ -137,11 +140,7 @@ export const MobileDeleteBoardModal = memo(() => {
               </Box>
             )}
 
-            {isUncategorized && (
-              <Text>
-                {t('boards.deleteUncategorizedImagesWarning', { count: imageCount })}
-              </Text>
-            )}
+            {isUncategorized && <Text>{t('boards.deleteUncategorizedImagesWarning', { count: imageCount })}</Text>}
 
             <Text color="error.400" fontWeight="semibold">
               {t('boards.deletedBoardsCannotbeRestored')}

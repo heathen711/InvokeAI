@@ -2,12 +2,14 @@
 import { Box, Flex, IconButton, Image, Text } from '@invoke-ai/ui-library';
 import { skipToken } from '@reduxjs/toolkit/query';
 import type { BoardId } from 'features/gallery/store/types';
+import type React from 'react';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { PiCheckBold, PiDotsThreeVerticalBold, PiFolderSimple } from 'react-icons/pi';
 import { useGetBoardAssetsTotalQuery, useGetBoardImagesTotalQuery } from 'services/api/endpoints/boards';
 import { useGetImageDTOQuery } from 'services/api/endpoints/images';
 import { useBoardName } from 'services/api/hooks/useBoardName';
 import type { BoardDTO } from 'services/api/types';
+
 import { MobileBoardActionSheet } from './MobileBoardActionSheet';
 
 interface MobileBoardListItemProps {
@@ -92,14 +94,7 @@ export const MobileBoardListItem = memo(({ board, isSelected, onSelect }: Mobile
         transition="background-color 0.1s"
       >
         {/* Board content - clickable for selection */}
-        <Flex
-          as="button"
-          onClick={handleSelect}
-          flex={1}
-          gap={3}
-          alignItems="center"
-          _active={{ opacity: 0.8 }}
-        >
+        <Flex as="button" onClick={handleSelect} flex={1} gap={3} alignItems="center" _active={{ opacity: 0.8 }}>
           {/* Thumbnail or icon */}
           <Box
             w="48px"
