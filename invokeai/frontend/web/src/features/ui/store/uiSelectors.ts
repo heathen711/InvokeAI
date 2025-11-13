@@ -7,8 +7,10 @@ export const selectShouldShowProgressInViewer = createSelector(selectUiSlice, (u
 export const selectPickerCompactViewStates = createSelector(selectUiSlice, (ui) => ui.pickerCompactViewStates);
 
 // Mobile selectors
+/** @knipignore - used by other mobile selectors */
 export const selectMobileState = createSelector(selectUiSlice, (ui) => ui.mobile);
 export const selectMobileMainTab = createSelector(selectMobileState, (mobile) => mobile.activeMainTab);
 export const selectMobileCreateMode = createSelector(selectMobileState, (mobile) => mobile.activeCreateMode);
 export const selectMobileManageMode = createSelector(selectMobileState, (mobile) => mobile.activeManageMode);
+/** @knipignore - used by mobile components */
 export const selectMobilePanelsOpen = createSelector(selectMobileState, (mobile) => mobile.panelsOpen);

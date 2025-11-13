@@ -103,10 +103,15 @@ export const {
   textAreaSizesStateChanged,
   dockviewStorageKeyChanged,
   pickerCompactViewStateChanged,
+  /** @knipignore - accessed via uiSlice.actions.setMobileMainTab */
   setMobileMainTab,
+  /** @knipignore - accessed via uiSlice.actions.setMobileCreateMode */
   setMobileCreateMode,
+  /** @knipignore - accessed via uiSlice.actions.setMobileManageMode */
   setMobileManageMode,
+  /** @knipignore - accessed via uiSlice.actions.toggleMobilePanel */
   toggleMobilePanel,
+  /** @knipignore - accessed via uiSlice.actions.setMobilePanelOpen */
   setMobilePanelOpen,
 } = slice.actions;
 

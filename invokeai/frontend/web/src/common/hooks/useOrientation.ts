@@ -1,6 +1,7 @@
 // src/common/hooks/useOrientation.ts
 import { useEffect, useState } from 'react';
 
+/** @knipignore - exported for type usage */
 export type Orientation = 'portrait' | 'landscape';
 
 const LANDSCAPE_QUERY = '(orientation: landscape)';

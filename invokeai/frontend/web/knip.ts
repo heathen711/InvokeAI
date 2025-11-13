@@ -17,7 +17,7 @@ const config: KnipConfig = {
     'src/app/store/use-debounced-app-selector.ts',
   ],
   ignoreBinaries: ['only-allow'],
-  ignoreDependencies: ['magic-string'],
+  ignoreDependencies: ['magic-string', '@testing-library/react-hooks'],
   paths: {
     'public/*': ['public/*'],
   },

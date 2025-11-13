@@ -2,6 +2,7 @@
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 
+/** @knipignore - exported for type usage */
 export interface TouchGestureHandlers {
   onPan?: (deltaX: number, deltaY: number) => void;
   onPinch?: (distance: number, scale: number) => void;
