@@ -59,7 +59,16 @@
         "imagesWithCount_other": "{{count}} images",
         "assetsWithCount_one": "{{count}} asset",
         "assetsWithCount_other": "{{count}} assets",
-        "updateBoardError": "Error updating board"
+        "updateBoardError": "Error updating board",
+        "newBoardName": "New board name...",
+        "create": "Create",
+        "boardNameRequired": "Please enter a board name",
+        "boardNameExists": "A board with this name already exists",
+        "boardCreated": "Board created",
+        "boardCreationFailed": "Failed to create board",
+        "noBoardsYet": "No boards yet",
+        "createFirstBoard": "Create your first board to organize images",
+        "saveTo": "Save to"
     },
     "accordions": {
         "generation": {
