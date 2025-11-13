@@ -72,7 +72,7 @@ import type { ParameterScheduler } from 'features/parameters/types/parameterSche
 import { QueueIterationsNumberInput } from 'features/queue/components/QueueIterationsNumberInput';
 import { useEnqueueGenerate } from 'features/queue/hooks/useEnqueueGenerate';
 import { useIsQueueMutationInProgress } from 'features/queue/hooks/useIsQueueMutationInProgress';
-import { MobileBoardSelector } from 'features/ui/components/mobile/boards/MobileBoardSelector';
+import { MobileBoardSelector } from 'features/ui/components/mobile/boards';
 import { MobileGenerationPreview } from 'features/ui/components/mobile/generate/MobileGenerationPreview';
 import { MobileModelSelector } from 'features/ui/components/mobile/generate/MobileModelSelector';
 import { MobileModelSelectorModal } from 'features/ui/components/mobile/generate/MobileModelSelectorModal';
