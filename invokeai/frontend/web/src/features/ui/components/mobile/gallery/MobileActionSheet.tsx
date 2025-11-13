@@ -13,6 +13,7 @@ import {
 } from '@invoke-ai/ui-library';
 import { useAppSelector } from 'app/store/storeHooks';
 import { useDownloadItem } from 'common/hooks/useDownloadImage';
+import { useDeleteImageModalApi } from 'features/deleteImageModal/store/state';
 import { useImageDTOContext } from 'features/gallery/contexts/ImageDTOContext';
 import { selectActiveTab } from 'features/ui/store/uiSelectors';
 import { memo, useCallback } from 'react';
@@ -30,6 +31,7 @@ import {
   PiTrash,
   PiUploadSimple,
 } from 'react-icons/pi';
+import { useStarImagesMutation, useUnstarImagesMutation } from 'services/api/endpoints/images';
 
 interface MobileActionSheetProps {
   isOpen: boolean;
@@ -84,6 +86,9 @@ export const MobileActionSheet = memo(({ isOpen, onClose, onOpenSubmenu }: Mobil
   const imageDTO = useImageDTOContext();
   const tab = useAppSelector(selectActiveTab);
   const { downloadItem } = useDownloadItem();
+  const [starImages] = useStarImagesMutation();
+  const [unstarImages] = useUnstarImagesMutation();
+  const deleteImageModal = useDeleteImageModalApi();
 
   const handleDownload = useCallback(() => {
     downloadItem(imageDTO.image_url, imageDTO.image_name);
@@ -134,6 +139,25 @@ export const MobileActionSheet = memo(({ isOpen, onClose, onOpenSubmenu }: Mobil
     onClose();
   }, [imageDTO, onClose]);
 
+  const handleStar = useCallback(() => {
+    if (imageDTO.starred) {
+      unstarImages({ image_names: [imageDTO.image_name] });
+    } else {
+      starImages({ image_names: [imageDTO.image_name] });
+    }
+    onClose();
+  }, [imageDTO, starImages, unstarImages, onClose]);
+
+  const handleDelete = useCallback(async () => {
+    try {
+      await deleteImageModal.delete([imageDTO.image_name]);
+      onClose();
+    } catch {
+      // User cancelled or error occurred
+      onClose();
+    }
+  }, [deleteImageModal, imageDTO, onClose]);
+
   return (
     <Drawer isOpen={isOpen} onClose={onClose} placement="bottom">
       <DrawerOverlay bg="blackAlpha.800" />
@@ -158,19 +182,9 @@ export const MobileActionSheet = memo(({ isOpen, onClose, onOpenSubmenu }: Mobil
             <ActionItem
               icon={imageDTO.starred ? <PiStarFill /> : <PiStar />}
               label={imageDTO.starred ? t('common.unstar') : t('common.star')}
-              onClick={() => {
-                // TODO: Implement star/unstar
-                onClose();
-              }}
+              onClick={handleStar}
             />
-            <ActionItem
-              icon={<PiTrash />}
-              label={t('common.delete')}
-              onClick={() => {
-                // TODO: Implement delete with confirmation
-                onClose();
-              }}
-            />
+            <ActionItem icon={<PiTrash />} label={t('common.delete')} onClick={handleDelete} />
           </Box>
 
           {/* Workflow Group */}
