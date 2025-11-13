@@ -45,7 +45,7 @@ describe('MobileGalleryGrid', () => {
     });
 
     renderWithProviders(<MobileGalleryGrid onImageSelect={vi.fn()} />);
-    expect(screen.getByRole('status')).toBeDefined();
+    expect(screen.getByLabelText('Loading gallery images')).toBeDefined();
   });
 
   it('renders empty state when no images', () => {

@@ -42,7 +42,7 @@ describe('MobileQueueStatus', () => {
     });
 
     renderWithProviders(<MobileQueueStatus />);
-    expect(screen.getByRole('status')).toBeDefined();
+    expect(screen.getByLabelText('Loading queue status')).toBeDefined();
   });
 
   it('renders queue statistics', () => {

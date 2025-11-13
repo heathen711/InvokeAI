@@ -36,7 +36,7 @@ describe('MobileModelsList', () => {
     });
 
     renderWithProviders(<MobileModelsList onModelSelect={vi.fn()} />);
-    expect(screen.getByRole('status')).toBeDefined();
+    expect(screen.getByLabelText('Loading models list')).toBeDefined();
   });
 
   it('renders empty state when no models', () => {

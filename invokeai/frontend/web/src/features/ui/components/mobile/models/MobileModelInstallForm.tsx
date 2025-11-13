@@ -102,7 +102,7 @@ export const MobileModelInstallForm = memo(({ onBack, onSuccess }: MobileModelIn
       </Flex>
 
       {/* Actions */}
-      <Flex p={4} borderTopWidth={1} borderColor="base.800">
+      <Flex p={4} pb="calc(60px + 1rem)" borderTopWidth={1} borderColor="base.800">
         <Button
           leftIcon={<PiDownloadBold />}
           onClick={handleInstall}

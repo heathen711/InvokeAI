@@ -177,44 +177,8 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Header with counter, share, and close buttons */}
-      <Flex
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        px={4}
-        py={3}
-        bg="blackAlpha.700"
-        justifyContent="space-between"
-        alignItems="center"
-        zIndex={10}
-      >
-        <Text color="white" fontSize="md" fontWeight="medium">
-          {currentIndex + 1} / {images.length}
-        </Text>
-        <Flex gap={2}>
-          {/* Share button (only show if Web Share API is available) */}
-          {'share' in navigator && (
-            <IconButton
-              aria-label="Share image"
-              icon={<PiShareFat />}
-              onClick={handleShare}
-              variant="ghost"
-              colorScheme="whiteAlpha"
-              size="lg"
-            />
-          )}
-          <IconButton
-            aria-label="Close viewer"
-            icon={<PiX />}
-            onClick={onClose}
-            variant="ghost"
-            colorScheme="whiteAlpha"
-            size="lg"
-          />
-        </Flex>
-      </Flex>
+      {/* Empty header for consistent spacing */}
+      <Box position="absolute" top={0} left={0} right={0} h="60px" pointerEvents="none" />
 
       {/* Image container with zoom/pan transform */}
       <Box
@@ -227,22 +191,6 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
         justifyContent="center"
         style={{ touchAction: 'none' }}
       >
-        {/* Previous image arrow (only show when not zoomed) */}
-        {scale === 1 && currentIndex > 0 && (
-          <IconButton
-            aria-label="Previous image"
-            icon={<PiCaretLeft />}
-            onClick={handlePrevious}
-            position="absolute"
-            left={4}
-            variant="solid"
-            colorScheme="whiteAlpha"
-            size="lg"
-            opacity={0.8}
-            _hover={{ opacity: 1 }}
-          />
-        )}
-
         <Box
           as="img"
           src={currentImage.image_url}
@@ -255,42 +203,69 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
           transform={`scale(${scale}) translate(${position.x}px, ${position.y}px)`}
           transition={scale === 1 ? 'transform 0.2s ease-out' : 'none'}
         />
-
-        {/* Next image arrow (only show when not zoomed) */}
-        {scale === 1 && currentIndex < images.length - 1 && (
-          <IconButton
-            aria-label="Next image"
-            icon={<PiCaretRight />}
-            onClick={handleNext}
-            position="absolute"
-            right={4}
-            variant="solid"
-            colorScheme="whiteAlpha"
-            size="lg"
-            opacity={0.8}
-            _hover={{ opacity: 1 }}
-          />
-        )}
       </Box>
 
-      {/* Image info footer */}
-      <Flex
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        px={4}
-        py={2}
-        bg="blackAlpha.700"
-        justifyContent="space-between"
-        alignItems="center"
-        fontSize="sm"
-        color="base.300"
-      >
-        <Text>
-          {currentImage.width} × {currentImage.height}
-        </Text>
-        <Text>Zoom: {Math.round(scale * 100)}%</Text>
+      {/* Image info and navigation footer */}
+      <Flex position="absolute" bottom={0} left={0} right={0} flexDirection="column" bg="blackAlpha.700" gap={2} pb={2}>
+        {/* Navigation buttons (only show when not zoomed) */}
+        {scale === 1 && (
+          <Flex justifyContent="center" alignItems="center" gap={4} px={4} pt={2}>
+            <IconButton
+              aria-label="Previous image"
+              icon={<PiCaretLeft />}
+              onClick={handlePrevious}
+              isDisabled={currentIndex === 0}
+              variant="solid"
+              colorScheme="invokeBlue"
+              size="lg"
+              opacity={currentIndex === 0 ? 0.4 : 1}
+            />
+            <Text color="white" fontSize="md" fontWeight="medium">
+              {currentIndex + 1} / {images.length}
+            </Text>
+            <IconButton
+              aria-label="Next image"
+              icon={<PiCaretRight />}
+              onClick={handleNext}
+              isDisabled={currentIndex === images.length - 1}
+              variant="solid"
+              colorScheme="invokeBlue"
+              size="lg"
+              opacity={currentIndex === images.length - 1 ? 0.4 : 1}
+            />
+          </Flex>
+        )}
+        {/* Image info */}
+        <Flex px={4} justifyContent="space-between" alignItems="center" fontSize="sm" color="base.300">
+          <Text>
+            {currentImage.width} × {currentImage.height}
+          </Text>
+          <Text>Zoom: {Math.round(scale * 100)}%</Text>
+        </Flex>
+        {/* Action buttons at bottom for one-handed use */}
+        <Flex px={4} pt={2} gap={3} justifyContent="stretch">
+          {/* Share button (only show if Web Share API is available) */}
+          {'share' in navigator && (
+            <IconButton
+              aria-label="Share image"
+              icon={<PiShareFat />}
+              onClick={handleShare}
+              variant="solid"
+              colorScheme="invokeBlue"
+              size="lg"
+              w="full"
+            />
+          )}
+          <IconButton
+            aria-label="Close viewer"
+            icon={<PiX />}
+            onClick={onClose}
+            variant="solid"
+            colorScheme="invokeBlue"
+            size="lg"
+            w="full"
+          />
+        </Flex>
       </Flex>
     </Flex>
   );

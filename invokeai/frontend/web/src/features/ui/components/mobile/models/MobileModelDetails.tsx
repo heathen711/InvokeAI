@@ -97,7 +97,7 @@ export const MobileModelDetails = memo(({ modelKey, onBack }: MobileModelDetails
         </Flex>
 
         {/* Actions */}
-        <Flex p={4} borderTopWidth={1} borderColor="base.800" gap={2}>
+        <Flex p={4} pb="calc(60px + 1rem)" borderTopWidth={1} borderColor="base.800" gap={2}>
           <Button
             leftIcon={<PiTrashSimpleFill />}
             onClick={deleteDialog.onOpen}

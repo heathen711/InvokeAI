@@ -160,7 +160,7 @@ export const MobileCanvasView = memo(() => {
       </Flex>
 
       {/* Bottom controls */}
-      <Flex px={4} py={3} bg="base.900" borderTopWidth={1} borderColor="base.800">
+      <Flex px={4} pt={3} pb="calc(60px + 0.75rem)" bg="base.900" borderTopWidth={1} borderColor="base.800">
         <ButtonGroup isAttached width="full" size="lg">
           <Button flex={1} leftIcon={<PiPaintBrushBold />} variant="outline">
             Brush

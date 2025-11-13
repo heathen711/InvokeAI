@@ -4,6 +4,7 @@ import { memo } from 'react';
 
 import { MobileCurrentQueueItem } from './MobileCurrentQueueItem';
 import { MobileQueueControls } from './MobileQueueControls';
+import { MobileQueueItemsList } from './MobileQueueItemsList';
 import { MobileQueueStatus } from './MobileQueueStatus';
 
 /**
@@ -11,10 +12,11 @@ import { MobileQueueStatus } from './MobileQueueStatus';
  */
 export const MobileQueueMode = memo(() => {
   return (
-    <Flex flexDirection="column" width="full" height="full" overflow="auto" gap={4} p={4}>
+    <Flex flexDirection="column" width="full" height="full" overflow="auto" gap={4} p={4} pb="calc(60px + 1rem)">
       <MobileQueueStatus />
       <MobileCurrentQueueItem />
       <MobileQueueControls />
+      <MobileQueueItemsList />
     </Flex>
   );
 });
