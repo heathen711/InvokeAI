@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, Union
 
 from fastapi import Body, HTTPException, Path, Query
@@ -12,6 +13,7 @@ from invokeai.app.services.shared.pagination import OffsetPaginatedResults
 from invokeai.app.services.shared.sqlite.sqlite_common import SQLiteDirection
 
 boards_router = APIRouter(prefix="/v1/boards", tags=["boards"])
+logger = logging.getLogger(__name__)
 
 
 class DeleteBoardResult(BaseModel):
@@ -38,8 +40,9 @@ async def create_board(
     try:
         result = ApiDependencies.invoker.services.boards.create(board_name=board_name)
         return result
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to create board")
+    except Exception as e:
+        logger.error(f"Failed to create board '{board_name}': {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to create board: {str(e)}")
 
 
 @boards_router.get("/{board_id}", operation_id="get_board", response_model=BoardDTO)
