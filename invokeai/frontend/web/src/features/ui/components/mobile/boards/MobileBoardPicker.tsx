@@ -110,7 +110,17 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
   }
 
   return (
-    <Flex position="fixed" top={0} left={0} right={0} bottom={0} zIndex={9999} bg="base.900" flexDirection="column">
+    <Flex
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      zIndex={9999}
+      bg="base.900"
+      flexDirection="column"
+      pb="64px"
+    >
       {/* Header */}
       <Flex
         px={4}
