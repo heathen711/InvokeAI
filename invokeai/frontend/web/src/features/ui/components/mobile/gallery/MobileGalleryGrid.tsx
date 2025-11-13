@@ -1,5 +1,6 @@
 // src/features/ui/components/mobile/gallery/MobileGalleryGrid.tsx
 import { Box, Flex, Grid, Icon, Text } from '@invoke-ai/ui-library';
+import { ASSETS_CATEGORIES, IMAGE_CATEGORIES } from 'features/gallery/store/types';
 import { usePullToRefresh } from 'features/ui/components/mobile/gestures/usePullToRefresh';
 import { MobileGallerySkeleton } from 'features/ui/components/mobile/loading/MobileGallerySkeleton';
 import { motion } from 'framer-motion';
@@ -11,6 +12,7 @@ import type { ImageDTO } from 'services/api/types';
 interface MobileGalleryGridProps {
   onImageSelect: (image: ImageDTO) => void;
   boardId?: string | null;
+  galleryView?: 'images' | 'assets';
 }
 
 // Transition constant for refresh icon animation
@@ -79,12 +81,16 @@ GalleryGridItem.displayName = 'GalleryGridItem';
  * Mobile gallery grid component
  * Displays images in a responsive grid layout optimized for touch
  */
-export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGalleryGridProps) => {
+export const MobileGalleryGrid = memo(({ onImageSelect, boardId, galleryView = 'images' }: MobileGalleryGridProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Determine categories based on gallery view
+  const categories = galleryView === 'images' ? IMAGE_CATEGORIES : ASSETS_CATEGORIES;
 
   // Fetch images using RTK Query
   const { data, isLoading, refetch } = useListImagesQuery({
     board_id: boardId ?? undefined,
+    categories,
     limit: 50,
     offset: 0,
     is_intermediate: false,
@@ -108,9 +114,11 @@ export const MobileGalleryGrid = memo(({ onImageSelect, boardId }: MobileGallery
 
   // Empty state
   if (!data || data.items.length === 0) {
+    const emptyMessage = galleryView === 'images' ? 'No images found' : 'No assets found';
+
     return (
       <Flex width="full" height="full" alignItems="center" justifyContent="center">
-        <Text color="base.400">No images found</Text>
+        <Text color="base.400">{emptyMessage}</Text>
       </Flex>
     );
   }
