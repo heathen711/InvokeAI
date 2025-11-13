@@ -1,10 +1,12 @@
 // src/features/ui/components/mobile/boards/MobileBoardListItem.tsx
-import { Box, Flex, IconButton, Image, Text } from '@invoke-ai/ui-library';
+import { Box, Flex, Image, Text } from '@invoke-ai/ui-library';
+import { skipToken } from '@reduxjs/toolkit/query';
 import { memo, useCallback } from 'react';
 import { PiCheckBold, PiFolderSimple } from 'react-icons/pi';
 import type { BoardDTO } from 'services/api/types';
 import type { BoardId } from 'features/gallery/store/types';
 import { useBoardName } from 'services/api/hooks/useBoardName';
+import { useGetImageDTOQuery } from 'services/api/endpoints/images';
 
 interface MobileBoardListItemProps {
   board: BoardDTO | 'none';
@@ -20,13 +22,15 @@ export const MobileBoardListItem = memo(
   ({ board, isSelected, onSelect }: MobileBoardListItemProps) => {
     const boardId: BoardId = board === 'none' ? 'none' : board.board_id;
     const boardName = useBoardName(boardId);
+    const { currentData: coverImage } = useGetImageDTOQuery(
+      board === 'none' ? skipToken : board.cover_image_name ?? skipToken
+    );
 
     const handleSelect = useCallback(() => {
       onSelect(boardId);
     }, [boardId, onSelect]);
 
-    // Determine thumbnail and image count
-    const thumbnail = board === 'none' ? null : board.cover_image_name;
+    // Determine image count
     const imageCount = board === 'none' ? 0 : board.image_count;
     const displayCount = imageCount === 0 ? 'Empty' : `${imageCount} images`;
 
@@ -59,8 +63,8 @@ export const MobileBoardListItem = memo(
           alignItems="center"
           justifyContent="center"
         >
-          {thumbnail ? (
-            <Image src={thumbnail} alt={boardName} objectFit="cover" w="full" h="full" />
+          {coverImage?.thumbnail_url ? (
+            <Image src={coverImage.thumbnail_url} alt={boardName} objectFit="cover" w="full" h="full" />
           ) : (
             <PiFolderSimple size={24} color={isSelected ? 'white' : 'var(--invoke-colors-base-400)'} />
           )}
