@@ -44,13 +44,13 @@ export const MobileBoardSelectorBar = memo(({ mode }: MobileBoardSelectorBarProp
     <Flex
       flexDirection="column"
       position="sticky"
-      bottom={0}
+      bottom="60px"
       left={0}
       right={0}
       bg="base.900"
       borderTop="1px solid"
       borderColor="base.700"
-      zIndex={1001}
+      zIndex={999}
     >
       {/* Board selector and view toggle */}
       <Flex px={3} py={2} gap={2} alignItems="center">
