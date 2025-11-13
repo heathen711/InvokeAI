@@ -1,13 +1,15 @@
 // src/features/ui/components/mobile/boards/MobileBoardPicker.tsx
 import { Button, Flex, Input, Spinner, Text, useToast } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { autoAddBoardIdChanged } from 'features/gallery/store/gallerySlice';
 import { selectAutoAddBoardId } from 'features/gallery/store/gallerySelectors';
+import { autoAddBoardIdChanged } from 'features/gallery/store/gallerySlice';
 import type { BoardId } from 'features/gallery/store/types';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiPlusBold } from 'react-icons/pi';
-import { useListAllBoardsQuery, useCreateBoardMutation } from 'services/api/endpoints/boards';
+import { useCreateBoardMutation, useListAllBoardsQuery } from 'services/api/endpoints/boards';
+
 import { MobileBoardListItem } from './MobileBoardListItem';
 
 interface MobileBoardPickerProps {
@@ -73,7 +75,7 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
       });
 
       // Modal stays open
-    } catch (error) {
+    } catch {
       toast({
         title: t('boards.boardCreationFailed'),
         status: 'error',
@@ -91,7 +93,7 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
   );
 
   const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
+    (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         handleCreateBoard();
       }
@@ -99,21 +101,16 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
     [handleCreateBoard]
   );
 
+  const handleNewBoardNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setNewBoardName(e.target.value);
+  }, []);
+
   if (!isOpen) {
     return null;
   }
 
   return (
-    <Flex
-      position="fixed"
-      top={0}
-      left={0}
-      right={0}
-      bottom={0}
-      zIndex={9999}
-      bg="base.900"
-      flexDirection="column"
-    >
+    <Flex position="fixed" top={0} left={0} right={0} bottom={0} zIndex={9999} bg="base.900" flexDirection="column">
       {/* Header */}
       <Flex
         px={4}
@@ -139,7 +136,7 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
           <Input
             placeholder={t('boards.newBoardName')}
             value={newBoardName}
-            onChange={(e) => setNewBoardName(e.target.value)}
+            onChange={handleNewBoardNameChange}
             onKeyDown={handleInputKeyDown}
             size="md"
             flex={1}
@@ -168,11 +165,7 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
         {!isLoading && (
           <>
             {/* Uncategorized board */}
-            <MobileBoardListItem
-              board="none"
-              isSelected={autoAddBoardId === 'none'}
-              onSelect={handleSelectBoard}
-            />
+            <MobileBoardListItem board="none" isSelected={autoAddBoardId === 'none'} onSelect={handleSelectBoard} />
 
             {/* User boards */}
             {boards?.map((board) => (

@@ -121,15 +121,7 @@ export const MobilePromptEditor = memo(
         />
 
         {/* Bottom action bar for one-handed use */}
-        <Flex
-          px={4}
-          py={3}
-          bg="base.850"
-          borderTopWidth={1}
-          borderColor="base.700"
-          gap={3}
-          justifyContent="stretch"
-        >
+        <Flex px={4} py={3} bg="base.850" borderTopWidth={1} borderColor="base.700" gap={3} justifyContent="stretch">
           <Button onClick={handleCancel} variant="ghost" size="lg" w="full" leftIcon={<PiX />}>
             Cancel
           </Button>

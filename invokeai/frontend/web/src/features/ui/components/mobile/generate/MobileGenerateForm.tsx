@@ -72,6 +72,7 @@ import type { ParameterScheduler } from 'features/parameters/types/parameterSche
 import { QueueIterationsNumberInput } from 'features/queue/components/QueueIterationsNumberInput';
 import { useEnqueueGenerate } from 'features/queue/hooks/useEnqueueGenerate';
 import { useIsQueueMutationInProgress } from 'features/queue/hooks/useIsQueueMutationInProgress';
+import { MobileBoardSelector } from 'features/ui/components/mobile/boards/MobileBoardSelector';
 import { MobileGenerationPreview } from 'features/ui/components/mobile/generate/MobileGenerationPreview';
 import { MobileModelSelector } from 'features/ui/components/mobile/generate/MobileModelSelector';
 import { MobileModelSelectorModal } from 'features/ui/components/mobile/generate/MobileModelSelectorModal';
@@ -883,20 +884,25 @@ export const MobileGenerateForm = memo(() => {
 
       {/* Fixed Action Bar */}
       <MobileActionBar>
-        <Flex pos="relative" w="full" maxWidth="400px" mx="auto" pr="72px">
-          <QueueIterationsNumberInput />
-          <Button
-            onClick={handleGenerate}
-            isLoading={isLoading}
-            isDisabled={!canGenerate}
-            colorScheme="invokeBlue"
-            size="lg"
-            w="full"
-            flexShrink={0}
-            leftIcon={<PiSparkleFill />}
-          >
-            {model ? 'Generate' : 'Select Model First'}
-          </Button>
+        <Flex pos="relative" w="full" maxWidth="400px" mx="auto" pr="72px" flexDirection="column" gap={3}>
+          {/* Board selector - above Generate button for one-handed reach */}
+          <MobileBoardSelector />
+
+          <Flex pos="relative" w="full">
+            <QueueIterationsNumberInput />
+            <Button
+              onClick={handleGenerate}
+              isLoading={isLoading}
+              isDisabled={!canGenerate}
+              colorScheme="invokeBlue"
+              size="lg"
+              w="full"
+              flexShrink={0}
+              leftIcon={<PiSparkleFill />}
+            >
+              {model ? 'Generate' : 'Select Model First'}
+            </Button>
+          </Flex>
         </Flex>
       </MobileActionBar>
 

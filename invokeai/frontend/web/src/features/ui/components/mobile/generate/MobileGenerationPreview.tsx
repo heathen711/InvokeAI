@@ -132,9 +132,7 @@ MobileGenerationPreview.displayName = 'MobileGenerationPreview';
  * Displays an in-flight progress image
  */
 const ProgressImageDisplay = memo(({ progressImage }: { progressImage: ProgressImageType }) => {
-  const shouldAntialiasProgressImage = useAppSelector((state) =>
-    selectSystemSlice(state).shouldAntialiasProgressImage
-  );
+  const shouldAntialiasProgressImage = useAppSelector((state) => selectSystemSlice(state).shouldAntialiasProgressImage);
 
   const sx = useMemo<SystemStyleObject>(
     () => ({

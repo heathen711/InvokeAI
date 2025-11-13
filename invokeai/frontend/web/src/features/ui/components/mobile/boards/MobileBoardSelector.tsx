@@ -2,10 +2,11 @@
 import { Button, Flex, Text } from '@invoke-ai/ui-library';
 import { useAppSelector } from 'app/store/storeHooks';
 import { selectAutoAddBoardId } from 'features/gallery/store/gallerySelectors';
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiCaretDownBold, PiFolderSimple } from 'react-icons/pi';
 import { useBoardName } from 'services/api/hooks/useBoardName';
+
 import { MobileBoardPicker } from './MobileBoardPicker';
 
 /**
@@ -19,10 +20,18 @@ export const MobileBoardSelector = memo(() => {
   const autoAddBoardId = useAppSelector(selectAutoAddBoardId);
   const boardName = useBoardName(autoAddBoardId);
 
+  const handleOpenPicker = useCallback(() => {
+    setIsPickerOpen(true);
+  }, []);
+
+  const handleClosePicker = useCallback(() => {
+    setIsPickerOpen(false);
+  }, []);
+
   return (
     <>
       <Button
-        onClick={() => setIsPickerOpen(true)}
+        onClick={handleOpenPicker}
         variant="outline"
         size="lg"
         w="full"
@@ -45,7 +54,7 @@ export const MobileBoardSelector = memo(() => {
         <PiCaretDownBold size={16} />
       </Button>
 
-      <MobileBoardPicker isOpen={isPickerOpen} onClose={() => setIsPickerOpen(false)} />
+      <MobileBoardPicker isOpen={isPickerOpen} onClose={handleClosePicker} />
     </>
   );
 });
