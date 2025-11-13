@@ -1,7 +1,11 @@
 // src/features/ui/components/mobile/boards/MobileBoardPicker.tsx
-import { Button, Flex, Input, Spinner, Text, useToast } from '@invoke-ai/ui-library';
+import { Box, Button, Flex, Input, Spinner, Text, useToast } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { selectAutoAddBoardId, selectSelectedBoardId } from 'features/gallery/store/gallerySelectors';
+import {
+  selectAutoAddBoardId,
+  selectSelectedBoardId,
+  selectShouldShowArchivedBoards,
+} from 'features/gallery/store/gallerySelectors';
 import { autoAddBoardIdChanged, boardIdSelected } from 'features/gallery/store/gallerySlice';
 import type { BoardId } from 'features/gallery/store/types';
 import type { ChangeEvent, KeyboardEvent } from 'react';
@@ -11,6 +15,7 @@ import { PiPlusBold } from 'react-icons/pi';
 import { useCreateBoardMutation, useListAllBoardsQuery } from 'services/api/endpoints/boards';
 
 import { MobileBoardListItem } from './MobileBoardListItem';
+import { MobileDeleteBoardModal } from './MobileDeleteBoardModal';
 
 interface MobileBoardPickerProps {
   isOpen: boolean;
@@ -33,10 +38,11 @@ export const MobileBoardPicker = memo(({ isOpen, onClose, mode = 'save' }: Mobil
   // Select appropriate board ID based on mode
   const autoAddBoardId = useAppSelector(selectAutoAddBoardId);
   const selectedBoardId = useAppSelector(selectSelectedBoardId);
+  const shouldShowArchivedBoards = useAppSelector(selectShouldShowArchivedBoards);
   const currentBoardId = mode === 'view' ? selectedBoardId : autoAddBoardId;
 
   const { data: boards, isLoading } = useListAllBoardsQuery({
-    include_archived: false,
+    include_archived: shouldShowArchivedBoards,
   });
   const [createBoard, { isLoading: isCreating }] = useCreateBoardMutation();
 
@@ -189,12 +195,13 @@ export const MobileBoardPicker = memo(({ isOpen, onClose, mode = 'save' }: Mobil
 
             {/* User boards */}
             {boards?.map((board) => (
-              <MobileBoardListItem
-                key={board.board_id}
-                board={board}
-                isSelected={currentBoardId === board.board_id}
-                onSelect={handleSelectBoard}
-              />
+              <Box key={board.board_id} opacity={board.archived ? 0.6 : 1}>
+                <MobileBoardListItem
+                  board={board}
+                  isSelected={currentBoardId === board.board_id}
+                  onSelect={handleSelectBoard}
+                />
+              </Box>
             ))}
 
             {/* Empty state */}
@@ -218,6 +225,9 @@ export const MobileBoardPicker = memo(({ isOpen, onClose, mode = 'save' }: Mobil
           {t('common.done')}
         </Button>
       </Flex>
+
+      {/* Delete board modal */}
+      <MobileDeleteBoardModal />
     </Flex>
   );
 });
