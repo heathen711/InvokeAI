@@ -22,8 +22,8 @@ import { useTranslation } from 'react-i18next';
 import {
   useDeleteBoardAndImagesMutation,
   useDeleteBoardMutation,
+  useListAllImageNamesForBoardQuery,
 } from 'services/api/endpoints/boards';
-import { useListAllBoardImageNamesQuery } from 'services/api/endpoints/images';
 
 /**
  * Mobile delete board confirmation modal
@@ -41,7 +41,7 @@ export const MobileDeleteBoardModal = memo(() => {
   const selectedBoardId = useAppSelector(selectSelectedBoardId);
   const dispatch = useAppDispatch();
 
-  const { data: imageNames, isFetching } = useListAllBoardImageNamesQuery(
+  const { data: imageNames, isFetching } = useListAllImageNamesForBoardQuery(
     boardToDelete === 'none'
       ? { board_id: 'none' }
       : boardToDelete

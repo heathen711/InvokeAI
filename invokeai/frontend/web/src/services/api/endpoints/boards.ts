@@ -1,5 +1,6 @@
 import { ASSETS_CATEGORIES, IMAGE_CATEGORIES } from 'features/gallery/store/types';
 import queryString from 'query-string';
+import type { paths } from 'services/api/schema';
 import type {
   BoardDTO,
   CreateBoardArg,
@@ -99,6 +100,39 @@ export const boardsApi = api.injectEndpoints({
      * Boards Mutations
      */
 
+    deleteBoard: build.mutation<
+      paths['/api/v1/boards/{board_id}']['delete']['responses']['200']['content']['application/json'],
+      paths['/api/v1/boards/{board_id}']['delete']['parameters']['path']
+    >({
+      query: ({ board_id }) => ({ url: buildBoardsUrl(board_id), method: 'DELETE' }),
+      invalidatesTags: () => [
+        { type: 'Board', id: LIST_TAG },
+        // invalidate the 'No Board' cache
+        {
+          type: 'ImageList',
+          id: getListImagesUrl({
+            board_id: 'none',
+            categories: IMAGE_CATEGORIES,
+            is_intermediate: false,
+            limit: 0,
+            offset: 0,
+          }),
+        },
+      ],
+    }),
+
+    deleteBoardAndImages: build.mutation<
+      paths['/api/v1/boards/{board_id}']['delete']['responses']['200']['content']['application/json'],
+      paths['/api/v1/boards/{board_id}']['delete']['parameters']['path']
+    >({
+      query: ({ board_id }) => ({
+        url: buildBoardsUrl(board_id),
+        method: 'DELETE',
+        params: { include_images: true },
+      }),
+      invalidatesTags: () => [{ type: 'Board', id: LIST_TAG }],
+    }),
+
     createBoard: build.mutation<BoardDTO, CreateBoardArg>({
       query: ({ board_name }) => ({
         url: buildBoardsUrl(),
@@ -134,5 +168,7 @@ export const {
   useGetBoardAssetsTotalQuery,
   useCreateBoardMutation,
   useUpdateBoardMutation,
+  useDeleteBoardMutation,
+  useDeleteBoardAndImagesMutation,
   useListAllImageNamesForBoardQuery,
 } = boardsApi;
