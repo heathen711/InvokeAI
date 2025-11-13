@@ -371,7 +371,7 @@ export const MobileActionSheet = memo(
     }, [onOpenSubmenu]);
 
     return (
-      <>
+      <Portal>
         <Drawer
           isOpen={isOpen && !currentSubmenu}
           onClose={onClose}
@@ -567,7 +567,7 @@ export const MobileActionSheet = memo(
             ]}
           />
         )}
-      </>
+      </Portal>
     );
   }
 );

@@ -9,6 +9,7 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  Portal,
   Text,
 } from '@invoke-ai/ui-library';
 import { memo } from 'react';
@@ -37,7 +38,8 @@ export const MobileActionSheetSubmenu = memo(
     const { t } = useTranslation();
 
     return (
-      <Drawer isOpen={isOpen} onClose={onClose} placement="bottom" portalProps={{ containerRef: undefined }}>
+      <Portal>
+        <Drawer isOpen={isOpen} onClose={onClose} placement="bottom" portalProps={{ containerRef: undefined }}>
         <DrawerOverlay bg="blackAlpha.800" style={{ zIndex: 10000 }} />
         <DrawerContent bg="base.900" borderTopRadius="lg" maxH="70vh" style={{ zIndex: 10000 }}>
           <DrawerHeader textAlign="center" borderBottom="1px solid" borderColor="base.700" py={3}>
@@ -84,6 +86,7 @@ export const MobileActionSheetSubmenu = memo(
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+      </Portal>
     );
   }
 );
