@@ -37,9 +37,9 @@ export const MobileActionSheetSubmenu = memo(
     const { t } = useTranslation();
 
     return (
-      <Drawer isOpen={isOpen} onClose={onClose} placement="bottom">
-        <DrawerOverlay bg="blackAlpha.800" zIndex={10000} />
-        <DrawerContent bg="base.900" borderTopRadius="lg" maxH="70vh" zIndex={10000}>
+      <Drawer isOpen={isOpen} onClose={onClose} placement="bottom" portalProps={{ containerRef: undefined }}>
+        <DrawerOverlay bg="blackAlpha.800" style={{ zIndex: 10000 }} />
+        <DrawerContent bg="base.900" borderTopRadius="lg" maxH="70vh" style={{ zIndex: 10000 }}>
           <DrawerHeader textAlign="center" borderBottom="1px solid" borderColor="base.700" py={3}>
             <Text fontSize="md" fontWeight="semibold" color="base.100">
               {title}
