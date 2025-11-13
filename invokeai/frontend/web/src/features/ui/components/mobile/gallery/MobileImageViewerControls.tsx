@@ -1,7 +1,8 @@
 // src/features/ui/components/mobile/gallery/MobileImageViewerControls.tsx
-import { Flex, IconButton } from '@invoke-ai/ui-library';
+import { Button, Flex, IconButton } from '@invoke-ai/ui-library';
 import { memo } from 'react';
-import { PiCaretLeft, PiCaretRight, PiDotsThree, PiX } from 'react-icons/pi';
+import { useTranslation } from 'react-i18next';
+import { PiCaretLeft, PiCaretRight, PiDotsThree } from 'react-icons/pi';
 
 interface MobileImageViewerControlsProps {
   visible: boolean;
@@ -19,6 +20,8 @@ interface MobileImageViewerControlsProps {
  */
 export const MobileImageViewerControls = memo(
   ({ visible, onPrevious, onNext, onClose, onMenu, canGoPrevious, canGoNext }: MobileImageViewerControlsProps) => {
+    const { t } = useTranslation();
+
     return (
       <Flex
         position="absolute"
@@ -59,9 +62,8 @@ export const MobileImageViewerControls = memo(
           borderRadius={0}
           _hover={{ bg: 'whiteAlpha.200' }}
         />
-        <IconButton
+        <Button
           aria-label="Close viewer"
-          icon={<PiX size={24} />}
           onClick={onClose}
           variant="ghost"
           colorScheme="base"
@@ -70,7 +72,9 @@ export const MobileImageViewerControls = memo(
           height="60px"
           borderRadius={0}
           _hover={{ bg: 'whiteAlpha.200' }}
-        />
+        >
+          {t('common.close')}
+        </Button>
         <IconButton
           aria-label="Next image"
           icon={<PiCaretRight size={24} />}

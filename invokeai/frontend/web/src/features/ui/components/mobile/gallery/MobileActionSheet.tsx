@@ -372,8 +372,8 @@ export const MobileActionSheet = memo(
     return (
       <>
         <Drawer isOpen={isOpen && !currentSubmenu} onClose={onClose} placement="bottom">
-          <DrawerOverlay bg="blackAlpha.800" />
-          <DrawerContent bg="base.900" borderTopRadius="lg" maxH="80vh">
+          <DrawerOverlay bg="blackAlpha.800" zIndex={10000} />
+          <DrawerContent bg="base.900" borderTopRadius="lg" maxH="80vh" zIndex={10000}>
             <DrawerHeader textAlign="center" borderBottom="1px solid" borderColor="base.700" py={3}>
               <Text fontSize="md" fontWeight="semibold" color="base.100">
                 {t('common.actions')}
