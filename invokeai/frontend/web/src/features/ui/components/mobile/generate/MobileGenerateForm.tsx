@@ -434,7 +434,7 @@ export const MobileGenerateForm = memo(() => {
         width="full"
         height="full"
         overflow="auto"
-        pb="120px" // Space for action bar + tab bar
+        pb="200px" // Space for action bar (with board selector) + tab bar
       >
         <VStack spacing={4} p={4} width="full">
           {/* Generation Preview */}
