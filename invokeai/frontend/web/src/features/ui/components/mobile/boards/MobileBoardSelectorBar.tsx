@@ -44,7 +44,7 @@ export const MobileBoardSelectorBar = memo(({ mode }: MobileBoardSelectorBarProp
       py={2}
       gap={2}
       alignItems="center"
-      zIndex={100}
+      zIndex={1001}
     >
       <MobileBoardSelector mode={mode} />
 
