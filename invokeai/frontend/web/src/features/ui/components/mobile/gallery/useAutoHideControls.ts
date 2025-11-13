@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const AUTO_HIDE_DELAY = 4000; // 4 seconds
 
-export interface UseAutoHideControlsReturn {
+interface UseAutoHideControlsReturn {
   controlsVisible: boolean;
   showControls: () => void;
   hideControls: () => void;

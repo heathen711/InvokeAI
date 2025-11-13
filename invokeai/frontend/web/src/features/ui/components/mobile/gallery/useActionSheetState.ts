@@ -1,14 +1,14 @@
 // src/features/ui/components/mobile/gallery/useActionSheetState.ts
 import { useCallback, useState } from 'react';
 
-export interface UseActionSheetStateOptions {
+interface UseActionSheetStateOptions {
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
   onSubmenuOpen?: (submenuName: string) => void;
   onSubmenuClose?: () => void;
 }
 
-export interface UseActionSheetStateReturn {
+interface UseActionSheetStateReturn {
   menuOpen: boolean;
   currentSubmenu: string | null;
   openMenu: () => void;
