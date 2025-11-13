@@ -2,3 +2,4 @@
 // Only export MobileBoardSelector as public API
 // MobileBoardListItem and MobileBoardPicker are internal implementation details
 export { MobileBoardSelector } from './MobileBoardSelector';
+export { MobileBoardSelectorBar } from './MobileBoardSelectorBar';
