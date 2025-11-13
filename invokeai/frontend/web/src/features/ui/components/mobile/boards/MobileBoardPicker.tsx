@@ -1,8 +1,8 @@
 // src/features/ui/components/mobile/boards/MobileBoardPicker.tsx
 import { Button, Flex, Input, Spinner, Text, useToast } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { selectAutoAddBoardId } from 'features/gallery/store/gallerySelectors';
-import { autoAddBoardIdChanged } from 'features/gallery/store/gallerySlice';
+import { selectAutoAddBoardId, selectSelectedBoardId } from 'features/gallery/store/gallerySelectors';
+import { autoAddBoardIdChanged, boardIdSelected } from 'features/gallery/store/gallerySlice';
 import type { BoardId } from 'features/gallery/store/types';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { memo, useCallback, useState } from 'react';
@@ -15,6 +15,7 @@ import { MobileBoardListItem } from './MobileBoardListItem';
 interface MobileBoardPickerProps {
   isOpen: boolean;
   onClose: () => void;
+  mode?: 'save' | 'view';
 }
 
 /**
@@ -22,13 +23,17 @@ interface MobileBoardPickerProps {
  * Allows creating new boards and selecting existing boards
  * Modal stays open after create/select for batch operations
  */
-export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerProps) => {
+export const MobileBoardPicker = memo(({ isOpen, onClose, mode = 'save' }: MobileBoardPickerProps) => {
   const { t } = useTranslation();
   const toast = useToast();
   const dispatch = useAppDispatch();
 
   const [newBoardName, setNewBoardName] = useState('');
+
+  // Select appropriate board ID based on mode
   const autoAddBoardId = useAppSelector(selectAutoAddBoardId);
+  const selectedBoardId = useAppSelector(selectSelectedBoardId);
+  const currentBoardId = mode === 'view' ? selectedBoardId : autoAddBoardId;
 
   const { data: boards, isLoading } = useListAllBoardsQuery({
     include_archived: false,
@@ -62,8 +67,12 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
     try {
       const result = await createBoard({ board_name: trimmedName }).unwrap();
 
-      // Auto-select newly created board
-      dispatch(autoAddBoardIdChanged(result.board_id));
+      // Auto-select newly created board (dispatch based on mode)
+      if (mode === 'view') {
+        dispatch(boardIdSelected({ boardId: result.board_id }));
+      } else {
+        dispatch(autoAddBoardIdChanged(result.board_id));
+      }
 
       // Clear input for next board
       setNewBoardName('');
@@ -82,14 +91,18 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
         duration: 3000,
       });
     }
-  }, [newBoardName, boards, createBoard, dispatch, toast, t]);
+  }, [newBoardName, boards, createBoard, dispatch, toast, t, mode]);
 
   const handleSelectBoard = useCallback(
     (boardId: BoardId) => {
-      dispatch(autoAddBoardIdChanged(boardId));
+      if (mode === 'view') {
+        dispatch(boardIdSelected({ boardId }));
+      } else {
+        dispatch(autoAddBoardIdChanged(boardId));
+      }
       // Modal stays open
     },
-    [dispatch]
+    [dispatch, mode]
   );
 
   const handleInputKeyDown = useCallback(
@@ -172,14 +185,14 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
         {!isLoading && (
           <>
             {/* Uncategorized board */}
-            <MobileBoardListItem board="none" isSelected={autoAddBoardId === 'none'} onSelect={handleSelectBoard} />
+            <MobileBoardListItem board="none" isSelected={currentBoardId === 'none'} onSelect={handleSelectBoard} />
 
             {/* User boards */}
             {boards?.map((board) => (
               <MobileBoardListItem
                 key={board.board_id}
                 board={board}
-                isSelected={autoAddBoardId === board.board_id}
+                isSelected={currentBoardId === board.board_id}
                 onSelect={handleSelectBoard}
               />
             ))}
