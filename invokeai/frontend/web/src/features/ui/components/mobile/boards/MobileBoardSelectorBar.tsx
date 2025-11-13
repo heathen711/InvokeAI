@@ -1,8 +1,9 @@
 // invokeai/frontend/web/src/features/ui/components/mobile/boards/MobileBoardSelectorBar.tsx
-import { Button, Flex } from '@invoke-ai/ui-library';
+import { Button, Checkbox, Flex, Text } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
-import { selectGalleryView } from 'features/gallery/store/gallerySelectors';
-import { galleryViewChanged } from 'features/gallery/store/gallerySlice';
+import { selectGalleryView, selectShouldShowArchivedBoards } from 'features/gallery/store/gallerySelectors';
+import { galleryViewChanged, shouldShowArchivedBoardsChanged } from 'features/gallery/store/gallerySlice';
+import type { ChangeEvent } from 'react';
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiFile, PiImage } from 'react-icons/pi';
@@ -21,11 +22,19 @@ export const MobileBoardSelectorBar = memo(({ mode }: MobileBoardSelectorBarProp
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const galleryView = useAppSelector(selectGalleryView);
+  const shouldShowArchivedBoards = useAppSelector(selectShouldShowArchivedBoards);
 
   const handleToggleView = useCallback(() => {
     const newView = galleryView === 'images' ? 'assets' : 'images';
     dispatch(galleryViewChanged(newView));
   }, [galleryView, dispatch]);
+
+  const handleToggleArchived = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      dispatch(shouldShowArchivedBoardsChanged(e.target.checked));
+    },
+    [dispatch]
+  );
 
   const isViewingImages = galleryView === 'images';
   const ToggleIcon = isViewingImages ? PiFile : PiImage;
@@ -33,6 +42,7 @@ export const MobileBoardSelectorBar = memo(({ mode }: MobileBoardSelectorBarProp
 
   return (
     <Flex
+      flexDirection="column"
       position="sticky"
       bottom={0}
       left={0}
@@ -40,28 +50,35 @@ export const MobileBoardSelectorBar = memo(({ mode }: MobileBoardSelectorBarProp
       bg="base.900"
       borderTop="1px solid"
       borderColor="base.700"
-      px={3}
-      py={2}
-      gap={2}
-      alignItems="center"
       zIndex={1001}
     >
-      <MobileBoardSelector mode={mode} />
+      {/* Board selector and view toggle */}
+      <Flex px={3} py={2} gap={2} alignItems="center">
+        <MobileBoardSelector mode={mode} />
 
-      {mode === 'view' && (
-        <Button
-          onClick={handleToggleView}
-          variant="outline"
-          size="lg"
-          flexShrink={0}
-          rightIcon={<ToggleIcon size={18} />}
-          h="auto"
-          py={6}
-          px={4}
-        >
-          {toggleText}
-        </Button>
-      )}
+        {mode === 'view' && (
+          <Button
+            onClick={handleToggleView}
+            variant="outline"
+            size="lg"
+            flexShrink={0}
+            rightIcon={<ToggleIcon size={18} />}
+            h="auto"
+            py={6}
+            px={4}
+          >
+            {toggleText}
+          </Button>
+        )}
+      </Flex>
+
+      {/* Archived boards toggle */}
+      <Flex px={3} py={2} alignItems="center" gap={2} borderTop="1px solid" borderColor="base.700">
+        <Checkbox isChecked={shouldShowArchivedBoards} onChange={handleToggleArchived} size="sm" />
+        <Text fontSize="sm" color="base.300">
+          {t('gallery.showArchivedBoards')}
+        </Text>
+      </Flex>
     </Flex>
   );
 });

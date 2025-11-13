@@ -71,3 +71,7 @@ export const selectAlwaysShouldImageSizeBadge = createSelector(
   selectGallerySlice,
   (gallery) => gallery.alwaysShowImageSizeBadge
 );
+export const selectShouldShowArchivedBoards = createSelector(
+  selectGallerySlice,
+  (gallery) => gallery.shouldShowArchivedBoards
+);
