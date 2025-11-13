@@ -6,8 +6,9 @@ import { useAppSelector } from 'app/store/storeHooks';
 import { selectLastSelectedItem } from 'features/gallery/store/gallerySelectors';
 import type { ProgressImage as ProgressImageType } from 'features/nodes/types/common';
 import { selectSystemSlice } from 'features/system/store/systemSlice';
+import { MobileImageViewer } from 'features/ui/components/mobile/gallery/MobileImageViewer';
 import { atom } from 'nanostores';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useGetImageDTOQuery } from 'services/api/endpoints/images';
 import type { S } from 'services/api/types';
 import { $socket } from 'services/events/stores';
@@ -15,12 +16,15 @@ import { $socket } from 'services/events/stores';
 /**
  * Mobile generation preview
  * Shows in-flight generation progress or the most recently selected/generated image
+ * Tap completed images to view full-screen
  */
 export const MobileGenerationPreview = memo(() => {
   const lastSelectedImageName = useAppSelector(selectLastSelectedItem);
   const { data: imageDTO, isLoading } = useGetImageDTOQuery(lastSelectedImageName ?? '', {
     skip: !lastSelectedImageName,
   });
+
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   // Listen to progress events
   const socket = useStore($socket);
@@ -53,6 +57,14 @@ export const MobileGenerationPreview = memo(() => {
       socket.off('queue_item_status_changed', onQueueItemStatusChanged);
     };
   }, [socket, $progressImage]);
+
+  const handleOpenViewer = useCallback(() => {
+    setIsViewerOpen(true);
+  }, []);
+
+  const handleCloseViewer = useCallback(() => {
+    setIsViewerOpen(false);
+  }, []);
 
   // Show progress image if available
   if (progressImage) {
@@ -100,29 +112,58 @@ export const MobileGenerationPreview = memo(() => {
   }
 
   return (
-    <Box position="relative" aspectRatio="1/1" bg="base.900" borderRadius="base" overflow="hidden">
-      <Image src={imageDTO.thumbnail_url} alt={imageDTO.image_name} objectFit="contain" width="full" height="full" />
-      {/* Image info overlay */}
-      <Flex
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        px={2}
-        py={1}
-        bg="blackAlpha.700"
-        justifyContent="space-between"
-        fontSize="xs"
-        color="base.300"
+    <>
+      <Box
+        as="button"
+        onClick={handleOpenViewer}
+        position="relative"
+        aspectRatio="1/1"
+        bg="base.900"
+        borderRadius="base"
+        overflow="hidden"
+        cursor="pointer"
+        w="full"
+        p={0}
+        border="none"
+        _hover={{ opacity: 0.9 }}
+        _active={{ opacity: 0.8 }}
+        transition="opacity 0.15s"
       >
-        <Text>
-          {imageDTO.width} × {imageDTO.height}
-        </Text>
-        <Text noOfLines={1} flex={1} textAlign="right" ml={2}>
-          {imageDTO.image_name}
-        </Text>
-      </Flex>
-    </Box>
+        <Image
+          src={imageDTO.thumbnail_url}
+          alt={imageDTO.image_name}
+          objectFit="contain"
+          width="full"
+          height="full"
+          pointerEvents="none"
+        />
+        {/* Image info overlay */}
+        <Flex
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          px={2}
+          py={1}
+          bg="blackAlpha.700"
+          justifyContent="space-between"
+          fontSize="xs"
+          color="base.300"
+        >
+          <Text>
+            {imageDTO.width} × {imageDTO.height}
+          </Text>
+          <Text noOfLines={1} flex={1} textAlign="right" ml={2}>
+            {imageDTO.image_name}
+          </Text>
+        </Flex>
+      </Box>
+
+      {/* Full-screen image viewer */}
+      {isViewerOpen && imageDTO && (
+        <MobileImageViewer images={[imageDTO]} currentIndex={0} onClose={handleCloseViewer} />
+      )}
+    </>
   );
 });
 
