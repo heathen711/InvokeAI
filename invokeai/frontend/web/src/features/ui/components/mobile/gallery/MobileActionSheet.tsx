@@ -13,14 +13,15 @@ import {
 } from '@invoke-ai/ui-library';
 import { useStore } from '@nanostores/react';
 import { useAppDispatch, useAppSelector, useAppStore } from 'app/store/storeHooks';
+import { useClipboard } from 'common/hooks/useClipboard';
 import { useDownloadItem } from 'common/hooks/useDownloadImage';
 import { imagesToChangeSelected, isModalOpenChanged } from 'features/changeBoardModal/store/slice';
 import { getDefaultRefImageConfig } from 'features/controlLayers/hooks/addLayerHooks';
+import { useCanvasIsBusySafe } from 'features/controlLayers/hooks/useCanvasIsBusy';
+import { useCanvasIsStaging } from 'features/controlLayers/store/canvasStagingAreaSlice';
 import { refImageAdded } from 'features/controlLayers/store/refImagesSlice';
 import { imageDTOToCroppableImage, imageDTOToImageWithDims } from 'features/controlLayers/store/util';
 import { useDeleteImageModalApi } from 'features/deleteImageModal/store/state';
-import { useCanvasIsBusySafe } from 'features/controlLayers/hooks/useCanvasIsBusy';
-import { useCanvasIsStaging } from 'features/controlLayers/store/canvasStagingAreaSlice';
 import { useImageDTOContext } from 'features/gallery/contexts/ImageDTOContext';
 import { useRecallAll } from 'features/gallery/hooks/useRecallAllImageMetadata';
 import { useRecallCLIPSkip } from 'features/gallery/hooks/useRecallCLIPSkip';
@@ -36,6 +37,7 @@ import { navigationApi } from 'features/ui/layouts/navigation-api';
 import { WORKSPACE_PANEL_ID } from 'features/ui/layouts/shared';
 import { selectActiveTab } from 'features/ui/store/uiSelectors';
 import { useLoadWorkflowWithDialog } from 'features/workflowLibrary/components/LoadWorkflowConfirmationAlertDialog';
+import type React from 'react';
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -120,6 +122,7 @@ export const MobileActionSheet = memo(
     const hasTemplates = useStore($hasTemplates);
     const isBusy = useCanvasIsBusySafe();
     const isStaging = useCanvasIsStaging();
+    const clipboard = useClipboard();
 
     // Recall metadata hooks
     const recallAll = useRecallAll(imageDTO);
@@ -139,18 +142,14 @@ export const MobileActionSheet = memo(
       try {
         const response = await fetch(imageDTO.image_url);
         const blob = await response.blob();
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            [blob.type]: blob,
-          }),
-        ]);
+        clipboard.writeImage(blob);
         onClose();
-      } catch (error) {
+      } catch {
         // Fallback: copy URL
-        await navigator.clipboard.writeText(imageDTO.image_url);
+        clipboard.writeText(imageDTO.image_url);
         onClose();
       }
-    }, [imageDTO, onClose]);
+    }, [imageDTO, onClose, clipboard]);
 
     const handleShare = useCallback(async () => {
       if (!('share' in navigator)) {
@@ -167,7 +166,7 @@ export const MobileActionSheet = memo(
           files: [file],
         });
         onClose();
-      } catch (error) {
+      } catch {
         // User cancelled or share failed
         onClose();
       }
@@ -358,6 +357,18 @@ export const MobileActionSheet = memo(
       onClose();
     }, [imageDTO, store, t, onClose]);
 
+    const handleOpenRecallMetadataSubmenu = useCallback(() => {
+      onOpenSubmenu('recall-metadata');
+    }, [onOpenSubmenu]);
+
+    const handleOpenNewCanvasSubmenu = useCallback(() => {
+      onOpenSubmenu('new-canvas');
+    }, [onOpenSubmenu]);
+
+    const handleOpenNewLayerSubmenu = useCallback(() => {
+      onOpenSubmenu('new-layer');
+    }, [onOpenSubmenu]);
+
     return (
       <>
         <Drawer isOpen={isOpen && !currentSubmenu} onClose={onClose} placement="bottom">
@@ -402,7 +413,7 @@ export const MobileActionSheet = memo(
                   <ActionItem
                     icon={<PiDotsThree />}
                     label="Recall Metadata"
-                    onClick={() => onOpenSubmenu('recall-metadata')}
+                    onClick={handleOpenRecallMetadataSubmenu}
                     hasSubmenu
                   />
                   {tab !== 'upscaling' && (
@@ -414,7 +425,7 @@ export const MobileActionSheet = memo(
                       <ActionItem
                         icon={<PiDotsThree />}
                         label="New Canvas from Image"
-                        onClick={() => onOpenSubmenu('new-canvas')}
+                        onClick={handleOpenNewCanvasSubmenu}
                         hasSubmenu
                       />
                     </>
@@ -423,7 +434,7 @@ export const MobileActionSheet = memo(
                     <ActionItem
                       icon={<PiDotsThree />}
                       label="New Layer from Image"
-                      onClick={() => onOpenSubmenu('new-layer')}
+                      onClick={handleOpenNewLayerSubmenu}
                       hasSubmenu
                     />
                   )}

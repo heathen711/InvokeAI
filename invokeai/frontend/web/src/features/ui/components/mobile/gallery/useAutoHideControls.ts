@@ -25,7 +25,9 @@ export function useAutoHideControls(): UseAutoHideControlsReturn {
   }, []);
 
   const startTimer = useCallback(() => {
-    if (paused) return;
+    if (paused) {
+      return;
+    }
 
     clearTimer();
     timerRef.current = window.setTimeout(() => {
