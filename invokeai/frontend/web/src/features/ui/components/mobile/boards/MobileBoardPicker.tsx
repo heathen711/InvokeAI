@@ -6,7 +6,7 @@ import { selectAutoAddBoardId } from 'features/gallery/store/gallerySelectors';
 import type { BoardId } from 'features/gallery/store/types';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PiPlusBold, PiX } from 'react-icons/pi';
+import { PiPlusBold } from 'react-icons/pi';
 import { useListAllBoardsQuery, useCreateBoardMutation } from 'services/api/endpoints/boards';
 import { MobileBoardListItem } from './MobileBoardListItem';
 
