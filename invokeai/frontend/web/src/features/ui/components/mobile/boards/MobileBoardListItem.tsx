@@ -1,13 +1,14 @@
 // src/features/ui/components/mobile/boards/MobileBoardListItem.tsx
-import { Box, Flex, Image, Text } from '@invoke-ai/ui-library';
+import { Box, Flex, IconButton, Image, Text } from '@invoke-ai/ui-library';
 import { skipToken } from '@reduxjs/toolkit/query';
 import type { BoardId } from 'features/gallery/store/types';
-import { memo, useCallback, useMemo } from 'react';
-import { PiCheckBold, PiFolderSimple } from 'react-icons/pi';
+import { memo, useCallback, useMemo, useState } from 'react';
+import { PiCheckBold, PiDotsThreeVerticalBold, PiFolderSimple } from 'react-icons/pi';
 import { useGetBoardAssetsTotalQuery, useGetBoardImagesTotalQuery } from 'services/api/endpoints/boards';
 import { useGetImageDTOQuery } from 'services/api/endpoints/images';
 import { useBoardName } from 'services/api/hooks/useBoardName';
 import type { BoardDTO } from 'services/api/types';
+import { MobileBoardActionSheet } from './MobileBoardActionSheet';
 
 interface MobileBoardListItemProps {
   board: BoardDTO | 'none';
@@ -41,9 +42,20 @@ export const MobileBoardListItem = memo(({ board, isSelected, onSelect }: Mobile
     skip: board !== 'none',
   });
 
+  const [actionSheetOpen, setActionSheetOpen] = useState(false);
+
   const handleSelect = useCallback(() => {
     onSelect(boardId);
   }, [boardId, onSelect]);
+
+  const handleMenuClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent board selection
+    setActionSheetOpen(true);
+  }, []);
+
+  const handleMenuClose = useCallback(() => {
+    setActionSheetOpen(false);
+  }, []);
 
   // Determine counts - use API data for "none" board, DTO data for regular boards
   const imageCount = board === 'none' ? imagesTotal : board.image_count;
@@ -65,54 +77,78 @@ export const MobileBoardListItem = memo(({ board, isSelected, onSelect }: Mobile
   }, [imageCount, assetCount, totalCount]);
 
   return (
-    <Flex
-      as="button"
-      onClick={handleSelect}
-      w="full"
-      px={4}
-      py={3}
-      gap={3}
-      alignItems="center"
-      bg={isSelected ? 'invokeBlue.500' : 'transparent'}
-      _hover={{ bg: isSelected ? 'invokeBlue.600' : 'base.750' }}
-      _active={{ bg: isSelected ? 'invokeBlue.700' : 'base.700' }}
-      borderRadius="none"
-      borderBottomWidth={1}
-      borderColor="base.700"
-      transition="background-color 0.1s"
-    >
-      {/* Thumbnail or icon */}
-      <Box
-        w="48px"
-        h="48px"
-        flexShrink={0}
-        borderRadius="base"
-        overflow="hidden"
-        bg="base.800"
-        display="flex"
+    <>
+      <Flex
+        w="full"
+        px={4}
+        py={3}
+        gap={3}
         alignItems="center"
-        justifyContent="center"
+        bg={isSelected ? 'invokeBlue.500' : 'transparent'}
+        _hover={{ bg: isSelected ? 'invokeBlue.600' : 'base.750' }}
+        borderRadius="none"
+        borderBottomWidth={1}
+        borderColor="base.700"
+        transition="background-color 0.1s"
       >
-        {coverImage?.thumbnail_url ? (
-          <Image src={coverImage.thumbnail_url} alt={boardName} objectFit="cover" w="full" h="full" />
-        ) : (
-          <PiFolderSimple size={24} color={isSelected ? 'white' : 'var(--invoke-colors-base-400)'} />
-        )}
-      </Box>
+        {/* Board content - clickable for selection */}
+        <Flex
+          as="button"
+          onClick={handleSelect}
+          flex={1}
+          gap={3}
+          alignItems="center"
+          _active={{ opacity: 0.8 }}
+        >
+          {/* Thumbnail or icon */}
+          <Box
+            w="48px"
+            h="48px"
+            flexShrink={0}
+            borderRadius="base"
+            overflow="hidden"
+            bg="base.800"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {coverImage?.thumbnail_url ? (
+              <Image src={coverImage.thumbnail_url} alt={boardName} objectFit="cover" w="full" h="full" />
+            ) : (
+              <PiFolderSimple size={24} color={isSelected ? 'white' : 'var(--invoke-colors-base-400)'} />
+            )}
+          </Box>
 
-      {/* Board name and count */}
-      <Flex flex={1} flexDirection="column" alignItems="flex-start" gap={1}>
-        <Text fontSize="md" fontWeight="semibold" color={isSelected ? 'white' : 'base.100'} noOfLines={1}>
-          {boardName}
-        </Text>
-        <Text fontSize="sm" color={isSelected ? 'whiteAlpha.800' : 'base.400'}>
-          {displayCount}
-        </Text>
+          {/* Board name and count */}
+          <Flex flex={1} flexDirection="column" alignItems="flex-start" gap={1}>
+            <Text fontSize="md" fontWeight="semibold" color={isSelected ? 'white' : 'base.100'} noOfLines={1}>
+              {boardName}
+            </Text>
+            <Text fontSize="sm" color={isSelected ? 'whiteAlpha.800' : 'base.400'}>
+              {displayCount}
+            </Text>
+          </Flex>
+
+          {/* Selection indicator */}
+          {isSelected && <PiCheckBold size={24} color="white" style={{ flexShrink: 0 }} />}
+        </Flex>
+
+        {/* Action menu button */}
+        <IconButton
+          icon={<PiDotsThreeVerticalBold />}
+          onClick={handleMenuClick}
+          aria-label="Board actions"
+          variant="ghost"
+          size="sm"
+          flexShrink={0}
+          color={isSelected ? 'white' : 'base.300'}
+          _hover={{ color: isSelected ? 'white' : 'base.100', bg: isSelected ? 'invokeBlue.600' : 'base.700' }}
+        />
       </Flex>
 
-      {/* Selection indicator */}
-      {isSelected && <PiCheckBold size={24} color="white" style={{ flexShrink: 0 }} />}
-    </Flex>
+      {/* Action sheet */}
+      <MobileBoardActionSheet board={board} isOpen={actionSheetOpen} onClose={handleMenuClose} />
+    </>
   );
 });
 
