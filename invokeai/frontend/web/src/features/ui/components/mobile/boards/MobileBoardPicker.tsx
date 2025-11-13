@@ -118,15 +118,12 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
         bg="base.850"
         borderBottomWidth={1}
         borderColor="base.700"
-        justifyContent="space-between"
+        justifyContent="center"
         alignItems="center"
       >
         <Text fontSize="lg" fontWeight="semibold" color="base.100">
           {t('boards.selectBoard')}
         </Text>
-        <Button onClick={onClose} variant="ghost" size="sm">
-          {t('common.done')}
-        </Button>
       </Flex>
 
       {/* Scrollable content */}
@@ -190,6 +187,13 @@ export const MobileBoardPicker = memo(({ isOpen, onClose }: MobileBoardPickerPro
             )}
           </>
         )}
+      </Flex>
+
+      {/* Bottom action bar - Done button */}
+      <Flex px={4} py={3} bg="base.850" borderTopWidth={1} borderColor="base.700">
+        <Button onClick={onClose} colorScheme="invokeBlue" size="lg" w="full">
+          {t('common.done')}
+        </Button>
       </Flex>
     </Flex>
   );
