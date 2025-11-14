@@ -159,13 +159,14 @@ const AESTHETIC_SCORE_CONSTRAINTS = {
 
 interface MobileCanvasGenerateFormProps {
   onClose: () => void;
+  onGenerationStarted?: () => void;
 }
 
 /**
  * Canvas-specific generate form for mobile
  * Simplified version without preview or board selector
  */
-export const MobileCanvasGenerateForm = memo(({ onClose }: MobileCanvasGenerateFormProps) => {
+export const MobileCanvasGenerateForm = memo(({ onClose, onGenerationStarted }: MobileCanvasGenerateFormProps) => {
   const dispatch = useAppDispatch();
   const positivePrompt = useAppSelector(selectPositivePrompt);
   const negativePrompt = useAppSelector(selectNegativePrompt);
@@ -216,8 +217,14 @@ export const MobileCanvasGenerateForm = memo(({ onClose }: MobileCanvasGenerateF
 
   const handleGenerate = useCallback(() => {
     enqueueCanvas(false);
-    onClose();
-  }, [enqueueCanvas, onClose]);
+    // Call onGenerationStarted callback if provided (enters staging mode)
+    if (onGenerationStarted) {
+      onGenerationStarted();
+    } else {
+      // Fallback to just closing if no callback provided
+      onClose();
+    }
+  }, [enqueueCanvas, onClose, onGenerationStarted]);
 
   const handleModelPress = useCallback(() => {
     modelSelectorModal.onOpen();
