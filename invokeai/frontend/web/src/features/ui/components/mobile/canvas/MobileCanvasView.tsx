@@ -113,8 +113,8 @@ export const MobileCanvasView = memo(() => {
     setIsLayersDrawerOpen(false);
   }, []);
 
-  // Enter staging mode when generation starts (will be wired in Task 7)
-  const _handleGenerationStarted = useCallback(() => {
+  // Enter staging mode when generation starts
+  const handleGenerationStarted = useCallback(() => {
     setIsGenerationDrawerOpen(false);
     setViewMode('staging');
   }, []);
@@ -225,7 +225,7 @@ export const MobileCanvasView = memo(() => {
             />
           </DrawerHeader>
           <DrawerBody p={0}>
-            <MobileCanvasGenerateForm onClose={handleCloseGenerationDrawer} />
+            <MobileCanvasGenerateForm onClose={handleCloseGenerationDrawer} onGenerationStarted={handleGenerationStarted} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

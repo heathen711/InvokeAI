@@ -215,14 +215,19 @@ export const MobileCanvasGenerateForm = memo(({ onClose, onGenerationStarted }: 
   const positivePromptEditor = useDisclosure();
   const negativePromptEditor = useDisclosure();
 
-  const handleGenerate = useCallback(() => {
-    enqueueCanvas(false);
-    // Call onGenerationStarted callback if provided (enters staging mode)
-    if (onGenerationStarted) {
-      onGenerationStarted();
-    } else {
-      // Fallback to just closing if no callback provided
-      onClose();
+  const handleGenerate = useCallback(async () => {
+    try {
+      await enqueueCanvas(false);
+      // Call onGenerationStarted callback if provided (enters staging mode)
+      if (onGenerationStarted) {
+        onGenerationStarted();
+      } else {
+        // Fallback to just closing if no callback provided
+        onClose();
+      }
+    } catch (error) {
+      // Error handling is done in enqueueCanvas, just log here
+      console.error('Failed to enqueue canvas generation:', error);
     }
   }, [enqueueCanvas, onClose, onGenerationStarted]);
 
