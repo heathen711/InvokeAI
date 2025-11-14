@@ -9,7 +9,6 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
-  Portal,
   Text,
 } from '@invoke-ai/ui-library';
 import { useStore } from '@nanostores/react';
@@ -371,18 +370,13 @@ export const MobileActionSheet = memo(
     }, [onOpenSubmenu]);
 
     return (
-      <Portal>
-        <Drawer
-          isOpen={isOpen && !currentSubmenu}
-          onClose={onClose}
-          placement="bottom"
-          portalProps={{ containerRef: undefined }}
-        >
-          <DrawerOverlay bg="blackAlpha.800" style={{ zIndex: 10000 }} />
-          <DrawerContent bg="base.900" borderTopRadius="lg" maxH="80vh" style={{ zIndex: 10000 }}>
+      <>
+        <Drawer isOpen={isOpen && !currentSubmenu} onClose={onClose} placement="bottom">
+          <DrawerOverlay bg="blackAlpha.800" />
+          <DrawerContent bg="base.900" borderTopRadius="lg" maxH="80vh">
             <DrawerHeader textAlign="center" borderBottom="1px solid" borderColor="base.700" py={3}>
               <Text fontSize="md" fontWeight="semibold" color="base.100">
-                {t('common.actions')}
+                {t('parameters.imageActions')}
               </Text>
             </DrawerHeader>
 
@@ -396,10 +390,10 @@ export const MobileActionSheet = memo(
                 </Box>
                 <ActionItem icon={<PiArrowSquareOut />} label={t('common.openInNewTab')} onClick={handleOpenInNewTab} />
                 <ActionItem icon={<PiCopy />} label={t('common.copy')} onClick={handleCopy} />
-                <ActionItem icon={<PiDownloadSimple />} label={t('common.download')} onClick={handleDownload} />
+                <ActionItem icon={<PiDownloadSimple />} label={t('gallery.download')} onClick={handleDownload} />
                 <ActionItem
                   icon={imageDTO.starred ? <PiStarFill /> : <PiStar />}
-                  label={imageDTO.starred ? t('common.unstar') : t('common.star')}
+                  label={imageDTO.starred ? t('gallery.unstarImage') : t('gallery.starImage')}
                   onClick={handleStar}
                 />
                 <ActionItem icon={<PiTrash />} label={t('common.delete')} onClick={handleDelete} />
@@ -511,6 +505,7 @@ export const MobileActionSheet = memo(
             onClose={onClose}
             onBack={onCloseSubmenu}
             title={t('controlLayers.newCanvasFromImage')}
+            selectionMode={true}
             options={[
               {
                 label: t('controlLayers.asRasterLayer'),
@@ -543,6 +538,7 @@ export const MobileActionSheet = memo(
             onClose={onClose}
             onBack={onCloseSubmenu}
             title={t('controlLayers.newLayerFromImage')}
+            selectionMode={true}
             options={[
               {
                 label: t('controlLayers.inpaintMask'),
@@ -567,7 +563,7 @@ export const MobileActionSheet = memo(
             ]}
           />
         )}
-      </Portal>
+      </>
     );
   }
 );

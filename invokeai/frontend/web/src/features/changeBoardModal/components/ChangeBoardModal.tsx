@@ -1,5 +1,5 @@
 import type { ComboboxOnChange, ComboboxOption } from '@invoke-ai/ui-library';
-import { Combobox, ConfirmationAlertDialog, Flex, FormControl, Text } from '@invoke-ai/ui-library';
+import { Combobox, ConfirmationAlertDialog, Flex, FormControl, Show, Text } from '@invoke-ai/ui-library';
 import { createSelector } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
 import { useAssertSingleton } from 'common/hooks/useAssertSingleton';
@@ -81,32 +81,35 @@ const ChangeBoardModal = () => {
     setSelectedBoardId(v.value);
   }, []);
 
+  // Only render on desktop - MobileBoardSelector handles mobile
   return (
-    <ConfirmationAlertDialog
-      isOpen={isModalOpen}
-      onClose={handleClose}
-      title={t('boards.changeBoard')}
-      acceptCallback={handleChangeBoard}
-      acceptButtonText={t('boards.move')}
-      cancelButtonText={t('boards.cancel')}
-      useInert={false}
-    >
-      <Flex flexDir="column" gap={4}>
-        <Text>
-          {t('boards.movingImagesToBoard', {
-            count: imagesToChange.length,
-          })}
-        </Text>
-        <FormControl isDisabled={isFetching}>
-          <Combobox
-            placeholder={isFetching ? t('boards.loading') : t('boards.selectBoard')}
-            onChange={onChange}
-            value={value}
-            options={options}
-          />
-        </FormControl>
-      </Flex>
-    </ConfirmationAlertDialog>
+    <Show above="md">
+      <ConfirmationAlertDialog
+        isOpen={isModalOpen}
+        onClose={handleClose}
+        title={t('boards.changeBoard')}
+        acceptCallback={handleChangeBoard}
+        acceptButtonText={t('boards.move')}
+        cancelButtonText={t('boards.cancel')}
+        useInert={false}
+      >
+        <Flex flexDir="column" gap={4}>
+          <Text>
+            {t('boards.movingImagesToBoard', {
+              count: imagesToChange.length,
+            })}
+          </Text>
+          <FormControl isDisabled={isFetching}>
+            <Combobox
+              placeholder={isFetching ? t('boards.loading') : t('boards.selectBoard')}
+              onChange={onChange}
+              value={value}
+              options={options}
+            />
+          </FormControl>
+        </Flex>
+      </ConfirmationAlertDialog>
+    </Show>
   );
 };
 

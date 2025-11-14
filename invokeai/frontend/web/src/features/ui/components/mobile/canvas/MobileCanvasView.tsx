@@ -38,7 +38,9 @@ import {
 import { RxMove } from 'react-icons/rx';
 
 import { MobileCanvasGenerateForm } from './MobileCanvasGenerateForm';
+import { MobileCanvasStagingArea } from './MobileCanvasStagingArea';
 import { MobileLayers } from './MobileLayers';
+import { MobileStagingAreaProgress } from './MobileStagingAreaProgress';
 
 /**
  * Mobile tool button that uses the real canvas tool system
@@ -111,8 +113,8 @@ export const MobileCanvasView = memo(() => {
     setIsLayersDrawerOpen(false);
   }, []);
 
-  // Enter staging mode when generation starts
-  const handleGenerationStarted = useCallback(() => {
+  // Enter staging mode when generation starts (will be wired in Task 7)
+  const _handleGenerationStarted = useCallback(() => {
     setIsGenerationDrawerOpen(false);
     setViewMode('staging');
   }, []);
@@ -134,6 +136,8 @@ export const MobileCanvasView = memo(() => {
         {/* Real canvas component integrated with CanvasManager */}
         <Box width="full" height="full" position="relative" style={{ touchAction: 'none' }}>
           <InvokeCanvasComponent />
+          {/* Progress overlay during generation (staging mode only) */}
+          {viewMode === 'staging' && <MobileStagingAreaProgress />}
         </Box>
 
         {/* Minimal floating controls (top-right) - only fullscreen */}
@@ -151,52 +155,58 @@ export const MobileCanvasView = memo(() => {
         </Flex>
       </Flex>
 
-      {/* Bottom tabbed control panel - wrapped in CanvasManagerProviderGate */}
+      {/* Bottom control panel - conditional based on view mode */}
       <CanvasManagerProviderGate>
-        <Box bg="base.900" borderTopWidth={1} borderColor="base.800" pb="calc(60px + 0.75rem)">
-          <Tabs
-            index={selectedPanelIndex}
-            onChange={handleTabChange}
-            variant="enclosed"
-            colorScheme="invokeBlue"
-            isFitted
-          >
-            <TabList px={2} pt={2} gap={1}>
-              <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
-                <PiGearBold /> Generation
-              </Tab>
-              <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
-                <PiPaintBrushBold /> Tools
-              </Tab>
-              <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
-                <PiStackBold /> Layers
-              </Tab>
-            </TabList>
+        {viewMode === 'normal' ? (
+          // Normal mode: Tabbed control panel
+          <Box bg="base.900" borderTopWidth={1} borderColor="base.800" pb="calc(60px + 0.75rem)">
+            <Tabs
+              index={selectedPanelIndex}
+              onChange={handleTabChange}
+              variant="enclosed"
+              colorScheme="invokeBlue"
+              isFitted
+            >
+              <TabList px={2} pt={2} gap={1}>
+                <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
+                  <PiGearBold /> Generation
+                </Tab>
+                <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
+                  <PiPaintBrushBold /> Tools
+                </Tab>
+                <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
+                  <PiStackBold /> Layers
+                </Tab>
+              </TabList>
 
-            <TabPanels>
-              {/* Generation Panel - Placeholder (opens drawer) */}
-              <TabPanel p={0} />
+              <TabPanels>
+                {/* Generation Panel - Placeholder (opens drawer) */}
+                <TabPanel p={0} />
 
-              {/* Tools Panel */}
-              <TabPanel p={0}>
-                <Box maxH="200px" overflowY="auto">
-                  <Flex gap={2} px={4} py={3} flexWrap="wrap">
-                    <MobileToolButton tool="brush" icon={<PiPaintBrushBold />} label="Brush" />
-                    <MobileToolButton tool="eraser" icon={<PiEraserBold />} label="Eraser" />
-                    <MobileToolButton tool="rect" icon={<PiRectangleBold />} label="Rectangle" />
-                    <MobileToolButton tool="move" icon={<RxMove />} label="Move Layer" />
-                    <MobileToolButton tool="view" icon={<PiHandBold />} label="Pan & Zoom" />
-                    <MobileToolButton tool="bbox" icon={<PiBoundingBoxBold />} label="Bounding Box" />
-                    <MobileToolButton tool="colorPicker" icon={<PiEyedropperBold />} label="Color Picker" />
-                  </Flex>
-                </Box>
-              </TabPanel>
+                {/* Tools Panel */}
+                <TabPanel p={0}>
+                  <Box maxH="200px" overflowY="auto">
+                    <Flex gap={2} px={4} py={3} flexWrap="wrap">
+                      <MobileToolButton tool="brush" icon={<PiPaintBrushBold />} label="Brush" />
+                      <MobileToolButton tool="eraser" icon={<PiEraserBold />} label="Eraser" />
+                      <MobileToolButton tool="rect" icon={<PiRectangleBold />} label="Rectangle" />
+                      <MobileToolButton tool="move" icon={<RxMove />} label="Move Layer" />
+                      <MobileToolButton tool="view" icon={<PiHandBold />} label="Pan & Zoom" />
+                      <MobileToolButton tool="bbox" icon={<PiBoundingBoxBold />} label="Bounding Box" />
+                      <MobileToolButton tool="colorPicker" icon={<PiEyedropperBold />} label="Color Picker" />
+                    </Flex>
+                  </Box>
+                </TabPanel>
 
-              {/* Layers Panel - Opens full-screen drawer */}
-              <TabPanel p={0} />
-            </TabPanels>
-          </Tabs>
-        </Box>
+                {/* Layers Panel - Opens full-screen drawer */}
+                <TabPanel p={0} />
+              </TabPanels>
+            </Tabs>
+          </Box>
+        ) : (
+          // Staging mode: Staging area controls
+          <MobileCanvasStagingArea onAccept={handleStagingAccept} onDiscardAll={handleStagingDiscardAll} />
+        )}
       </CanvasManagerProviderGate>
 
       {/* Full-screen Generation Drawer */}

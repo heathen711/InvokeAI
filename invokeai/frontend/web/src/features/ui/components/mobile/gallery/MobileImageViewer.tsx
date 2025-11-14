@@ -7,6 +7,7 @@ import { memo, useCallback, useRef, useState } from 'react';
 import type { ImageDTO } from 'services/api/types';
 
 import { MobileActionSheet } from './MobileActionSheet';
+import { MobileBoardSelector } from './MobileBoardSelector';
 import { MobileImageViewerControls } from './MobileImageViewerControls';
 import { useActionSheetState } from './useActionSheetState';
 import { useAutoHideControls } from './useAutoHideControls';
@@ -170,7 +171,7 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
         left={0}
         right={0}
         bottom={0}
-        zIndex={9999}
+        zIndex={1300}
         bg="black"
         flexDirection="column"
         alignItems="center"
@@ -224,6 +225,9 @@ export const MobileImageViewer = memo(({ images, currentIndex: initialIndex, onC
           currentSubmenu={currentSubmenu}
           onCloseSubmenu={closeSubmenu}
         />
+
+        {/* Mobile board selector */}
+        <MobileBoardSelector />
       </Flex>
     </ImageDTOContextProvider>
   );

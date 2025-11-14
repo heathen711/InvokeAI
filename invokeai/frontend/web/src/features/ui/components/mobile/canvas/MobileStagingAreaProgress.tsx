@@ -36,9 +36,7 @@ export const MobileStagingAreaProgress = memo(() => {
         </Text>
 
         {/* Progress bar */}
-        {percentage !== undefined && (
-          <Progress value={percentage} colorScheme="invokeBlue" size="sm" mb={3} />
-        )}
+        {percentage !== undefined && <Progress value={percentage} colorScheme="invokeBlue" size="sm" mb={3} />}
 
         {/* Preview image if available */}
         {progressImage && (

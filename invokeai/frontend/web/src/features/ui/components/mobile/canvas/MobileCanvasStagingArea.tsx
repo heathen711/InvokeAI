@@ -2,6 +2,7 @@ import { Box, Flex } from '@invoke-ai/ui-library';
 import { useStore } from '@nanostores/react';
 import { useStagingAreaContext } from 'features/controlLayers/components/StagingArea/context';
 import { memo, useEffect } from 'react';
+
 import {
   MobileStagingAreaAutoSwitchButtons,
   MobileStagingAreaNavigation,

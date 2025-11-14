@@ -53,13 +53,23 @@ const getInitialState = (): DeleteImagesModalState => ({
 
 const $deleteModalState = atom<DeleteImagesModalState>(getInitialState());
 
+/**
+ * Check if we're on a mobile viewport (below md breakpoint at 768px)
+ * This matches Chakra UI's Show component behavior with below="md"
+ */
+const isMobileViewport = (): boolean => {
+  return window.matchMedia('(max-width: 767px)').matches;
+};
+
 const deleteImagesWithDialog = async (image_names: string[], store: AppStore): Promise<void> => {
   const { getState } = store;
   const imageUsage = getImageUsageFromImageNames(image_names, getState());
   const shouldConfirmOnDelete = selectSystemShouldConfirmOnDelete(getState());
+  const isMobile = isMobileViewport();
 
-  if (!shouldConfirmOnDelete && !isAnyImageInUse(imageUsage)) {
-    // If we don't need to confirm and the images are not in use, delete them directly
+  // Always show confirmation on mobile for safety, even if user has "don't ask again" enabled
+  if (!isMobile && !shouldConfirmOnDelete && !isAnyImageInUse(imageUsage)) {
+    // If we're on desktop, don't need to confirm, and images are not in use, delete them directly
     await handleDeletions(image_names, store);
     return;
   }
