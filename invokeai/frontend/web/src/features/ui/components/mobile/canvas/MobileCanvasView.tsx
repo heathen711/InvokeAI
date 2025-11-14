@@ -225,7 +225,10 @@ export const MobileCanvasView = memo(() => {
             />
           </DrawerHeader>
           <DrawerBody p={0}>
-            <MobileCanvasGenerateForm onClose={handleCloseGenerationDrawer} onGenerationStarted={handleGenerationStarted} />
+            <MobileCanvasGenerateForm
+              onClose={handleCloseGenerationDrawer}
+              onGenerationStarted={handleGenerationStarted}
+            />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

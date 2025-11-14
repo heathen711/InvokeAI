@@ -33,7 +33,7 @@ import { copyImage } from 'services/api/endpoints/images';
 /**
  * Previous button - navigate to previous staged image
  */
-export const MobileStagingAreaPrevButton = memo(() => {
+const MobileStagingAreaPrevButton = memo(() => {
   const ctx = useStagingAreaContext();
   const selectedItem = useStore(ctx.$selectedItem);
   const { t } = useTranslation();
@@ -56,7 +56,7 @@ MobileStagingAreaPrevButton.displayName = 'MobileStagingAreaPrevButton';
 /**
  * Next button - navigate to next staged image
  */
-export const MobileStagingAreaNextButton = memo(() => {
+const MobileStagingAreaNextButton = memo(() => {
   const ctx = useStagingAreaContext();
   const selectedItem = useStore(ctx.$selectedItem);
   const itemCount = useStore(ctx.$itemCount);
@@ -80,7 +80,7 @@ MobileStagingAreaNextButton.displayName = 'MobileStagingAreaNextButton';
 /**
  * Image counter - shows current index and total count
  */
-export const MobileStagingAreaImageCountButton = memo(() => {
+const MobileStagingAreaImageCountButton = memo(() => {
   const ctx = useStagingAreaContext();
   const selectedItem = useStore(ctx.$selectedItem);
   const itemCount = useStore(ctx.$itemCount);
@@ -117,7 +117,7 @@ MobileStagingAreaNavigation.displayName = 'MobileStagingAreaNavigation';
 /**
  * Accept button - commits current image to canvas and exits staging
  */
-export const MobileStagingAreaAcceptButton = memo(({ onAccept }: { onAccept: () => void }) => {
+const MobileStagingAreaAcceptButton = memo(({ onAccept }: { onAccept: () => void }) => {
   const ctx = useStagingAreaContext();
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
@@ -147,7 +147,7 @@ MobileStagingAreaAcceptButton.displayName = 'MobileStagingAreaAcceptButton';
 /**
  * Save to gallery button - copies current image to gallery
  */
-export const MobileStagingAreaSaveToGalleryButton = memo(() => {
+const MobileStagingAreaSaveToGalleryButton = memo(() => {
   const canvasManager = useCanvasManager();
   const autoAddBoardId = useAppSelector(selectAutoAddBoardId);
   const ctx = useStagingAreaContext();
@@ -198,7 +198,7 @@ MobileStagingAreaSaveToGalleryButton.displayName = 'MobileStagingAreaSaveToGalle
 /**
  * Discard selected button - removes current image from staging
  */
-export const MobileStagingAreaDiscardSelectedButton = memo(() => {
+const MobileStagingAreaDiscardSelectedButton = memo(() => {
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
   const ctx = useStagingAreaContext();
@@ -237,7 +237,7 @@ MobileStagingAreaPrimaryActions.displayName = 'MobileStagingAreaPrimaryActions';
 /**
  * Toggle show results button - shows/hides staged image overlay
  */
-export const MobileStagingAreaToggleShowResultsButton = memo(() => {
+const MobileStagingAreaToggleShowResultsButton = memo(() => {
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
   const { t } = useTranslation();
@@ -266,7 +266,7 @@ MobileStagingAreaToggleShowResultsButton.displayName = 'MobileStagingAreaToggleS
 /**
  * Menu button - additional actions (new layer from image, etc.)
  */
-export const MobileStagingAreaMenuButton = memo(() => {
+const MobileStagingAreaMenuButton = memo(() => {
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
 
@@ -343,7 +343,7 @@ MobileStagingAreaAutoSwitchButtons.displayName = 'MobileStagingAreaAutoSwitchBut
 /**
  * Discard all button - removes all images and exits staging
  */
-export const MobileStagingAreaDiscardAllButton = memo(({ onDiscardAll }: { onDiscardAll: () => void }) => {
+const MobileStagingAreaDiscardAllButton = memo(({ onDiscardAll }: { onDiscardAll: () => void }) => {
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
   const ctx = useStagingAreaContext();

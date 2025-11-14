@@ -225,9 +225,8 @@ export const MobileCanvasGenerateForm = memo(({ onClose, onGenerationStarted }: 
         // Fallback to just closing if no callback provided
         onClose();
       }
-    } catch (error) {
-      // Error handling is done in enqueueCanvas, just log here
-      console.error('Failed to enqueue canvas generation:', error);
+    } catch {
+      // Error handling is done in enqueueCanvas
     }
   }, [enqueueCanvas, onClose, onGenerationStarted]);
 
