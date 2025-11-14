@@ -1,181 +1,229 @@
 // src/features/ui/components/mobile/canvas/MobileCanvasView.tsx
-import { Box, Button, ButtonGroup, Flex, IconButton, Text, useDisclosure } from '@invoke-ai/ui-library';
+import {
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  Flex,
+  IconButton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from '@invoke-ai/ui-library';
 import { useFullscreen } from 'common/hooks/useFullscreen';
-import { useTouchGestures } from 'common/hooks/useTouchGestures';
+import { InvokeCanvasComponent } from 'features/controlLayers/components/InvokeCanvasComponent';
+import { useSelectTool, useToolIsSelected } from 'features/controlLayers/components/Tool/hooks';
+import { CanvasManagerProviderGate } from 'features/controlLayers/contexts/CanvasManagerProviderGate';
+import type { Tool } from 'features/controlLayers/store/types';
+import { navigationApi } from 'features/ui/layouts/navigation-api';
+import type { ReactElement } from 'react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   PiArrowsInSimpleBold,
   PiArrowsOutSimpleBold,
+  PiBoundingBoxBold,
   PiEraserBold,
+  PiEyedropperBold,
+  PiGearBold,
   PiHandBold,
   PiPaintBrushBold,
+  PiRectangleBold,
   PiStackBold,
+  PiXBold,
 } from 'react-icons/pi';
-import { Layer, Rect, Stage } from 'react-konva';
+import { RxMove } from 'react-icons/rx';
 
-import { MobileLayersDrawer } from './MobileLayersDrawer';
+import { MobileCanvasGenerateForm } from './MobileCanvasGenerateForm';
+import { MobileLayers } from './MobileLayers';
 
 /**
- * Mobile canvas view with Konva
- * Supports pan and zoom via touch gestures, fullscreen, and layers panel
+ * Mobile tool button that uses the real canvas tool system
+ */
+const MobileToolButton = memo(({ tool, icon, label }: { tool: Tool; icon: ReactElement; label: string }) => {
+  const isSelected = useToolIsSelected(tool);
+  const selectTool = useSelectTool(tool);
+
+  return (
+    <IconButton
+      aria-label={label}
+      icon={icon}
+      variant={isSelected ? 'solid' : 'outline'}
+      colorScheme={isSelected ? 'invokeBlue' : 'base'}
+      onClick={selectTool}
+      size="lg"
+      minW="60px"
+    />
+  );
+});
+
+MobileToolButton.displayName = 'MobileToolButton';
+
+/**
+ * Mobile canvas view with full CanvasManager integration
+ * Optimized for one-handed mobile UX with bottom-accessible controls
  */
 export const MobileCanvasView = memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
+  const [selectedPanelIndex, setSelectedPanelIndex] = useState<number>(1); // Start on Tools tab
+  const [isGenerationDrawerOpen, setIsGenerationDrawerOpen] = useState(false);
+  const [isLayersDrawerOpen, setIsLayersDrawerOpen] = useState(false);
+  // View mode for staging area
+  type ViewMode = 'normal' | 'staging';
+  const [viewMode, setViewMode] = useState<ViewMode>('normal');
 
-  // Fullscreen and layers panel
+  // Set active tab to 'canvas' when component mounts to enable canvas generation
+  useEffect(() => {
+    navigationApi.switchToTab('canvas');
+  }, []);
+
+  // Fullscreen support
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
-  const layersPanelDisclosure = useDisclosure();
-
-  // Update container size on mount and resize
-  const updateSize = useCallback(() => {
-    if (containerRef.current) {
-      setContainerSize({
-        width: containerRef.current.clientWidth,
-        height: containerRef.current.clientHeight,
-      });
-    }
-  }, []);
-
-  // Handle pan gesture (2-finger drag)
-  const handlePan = useCallback((deltaX: number, deltaY: number) => {
-    setPosition((prev) => ({
-      x: prev.x + deltaX,
-      y: prev.y + deltaY,
-    }));
-  }, []);
-
-  // Handle pinch gesture (zoom)
-  const handlePinch = useCallback((_distance: number, scaleChange: number) => {
-    setScale((prev) => {
-      return Math.max(0.1, Math.min(4, prev * scaleChange));
-    });
-  }, []);
-
-  // Handle double-tap (fit to screen)
-  const handleDoubleTap = useCallback(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
-  }, []);
 
   // Handle fullscreen toggle
   const handleFullscreen = useCallback(() => {
     toggleFullscreen();
   }, [toggleFullscreen]);
 
-  // Handle layers panel
-  const handleOpenLayers = useCallback(() => {
-    layersPanelDisclosure.onOpen();
-  }, [layersPanelDisclosure]);
+  // Handle tab change - open drawer for Generation and Layers
+  const handleTabChange = useCallback((index: number) => {
+    if (index === 0) {
+      // Generation tab - open drawer instead
+      setIsGenerationDrawerOpen(true);
+    } else if (index === 2) {
+      // Layers tab - open drawer instead
+      setIsLayersDrawerOpen(true);
+    } else {
+      setSelectedPanelIndex(index);
+    }
+  }, []);
 
-  // Setup touch gestures
-  useTouchGestures(containerRef, {
-    onPan: handlePan,
-    onPinch: handlePinch,
-    onDoubleTap: handleDoubleTap,
-  });
+  // Close generation drawer
+  const handleCloseGenerationDrawer = useCallback(() => {
+    setIsGenerationDrawerOpen(false);
+  }, []);
 
-  // Effect to update size
-  useEffect(() => {
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => {
-      window.removeEventListener('resize', updateSize);
-    };
-  }, [updateSize]);
+  // Close layers drawer
+  const handleCloseLayersDrawer = useCallback(() => {
+    setIsLayersDrawerOpen(false);
+  }, []);
+
+  // Enter staging mode when generation starts
+  const handleGenerationStarted = useCallback(() => {
+    setIsGenerationDrawerOpen(false);
+    setViewMode('staging');
+  }, []);
+
+  // Exit staging mode when user accepts current image
+  const handleStagingAccept = useCallback(() => {
+    setViewMode('normal');
+  }, []);
+
+  // Exit staging mode when user discards all images
+  const handleStagingDiscardAll = useCallback(() => {
+    setViewMode('normal');
+  }, []);
 
   return (
     <Flex ref={containerRef} flexDirection="column" width="full" height="full" overflow="hidden" position="relative">
       {/* Canvas area */}
       <Flex flex={1} position="relative" overflow="hidden" bg="base.900">
-        {/* Canvas layers will be rendered here by ControlLayersCanvas */}
-        <Box width="full" height="full" style={{ touchAction: 'none' }}>
-          {/* Placeholder - actual canvas integration requires controlLayers feature */}
-          <Stage
-            width={containerSize.width}
-            height={containerSize.height}
-            scaleX={scale}
-            scaleY={scale}
-            x={position.x}
-            y={position.y}
-          >
-            <Layer>
-              {/* Placeholder: checkerboard background */}
-              <Rect
-                x={0}
-                y={0}
-                width={containerSize.width / scale}
-                height={containerSize.height / scale}
-                fill="#1a1a1a"
-              />
-              {/* Canvas rendering placeholder */}
-            </Layer>
-          </Stage>
+        {/* Real canvas component integrated with CanvasManager */}
+        <Box width="full" height="full" position="relative" style={{ touchAction: 'none' }}>
+          <InvokeCanvasComponent />
         </Box>
 
-        {/* Floating toolbar (top-right) */}
-        <Flex position="absolute" top={2} right={2} gap={2} zIndex={10}>
-          <IconButton
-            aria-label="Toggle layers panel"
-            icon={<PiStackBold />}
-            onClick={handleOpenLayers}
-            variant="solid"
-            colorScheme="base"
-            size="md"
-            bg="blackAlpha.700"
-            _hover={{ bg: 'blackAlpha.800' }}
-          />
+        {/* Minimal floating controls (top-right) - only fullscreen */}
+        <Flex position="absolute" top={2} right={2} zIndex={10}>
           <IconButton
             aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             icon={isFullscreen ? <PiArrowsInSimpleBold /> : <PiArrowsOutSimpleBold />}
             onClick={handleFullscreen}
             variant="solid"
             colorScheme="base"
-            size="md"
+            size="sm"
             bg="blackAlpha.700"
             _hover={{ bg: 'blackAlpha.800' }}
           />
         </Flex>
-
-        {/* Status bar (bottom) */}
-        <Flex
-          position="absolute"
-          bottom={0}
-          left={0}
-          right={0}
-          px={4}
-          py={2}
-          bg="blackAlpha.700"
-          justifyContent="space-between"
-          fontSize="sm"
-          color="base.300"
-        >
-          <Text role="status" aria-live="polite">
-            Zoom: {Math.round(scale * 100)}%
-          </Text>
-          <Text role="note">Double-tap to fit</Text>
-        </Flex>
       </Flex>
 
-      {/* Bottom controls */}
-      <Flex px={4} pt={3} pb="calc(60px + 0.75rem)" bg="base.900" borderTopWidth={1} borderColor="base.800">
-        <ButtonGroup isAttached width="full" size="lg">
-          <Button flex={1} leftIcon={<PiPaintBrushBold />} variant="outline">
-            Brush
-          </Button>
-          <Button flex={1} leftIcon={<PiEraserBold />} variant="outline">
-            Eraser
-          </Button>
-          <Button flex={1} leftIcon={<PiHandBold />} variant="outline">
-            Move
-          </Button>
-        </ButtonGroup>
-      </Flex>
+      {/* Bottom tabbed control panel - wrapped in CanvasManagerProviderGate */}
+      <CanvasManagerProviderGate>
+        <Box bg="base.900" borderTopWidth={1} borderColor="base.800" pb="calc(60px + 0.75rem)">
+          <Tabs
+            index={selectedPanelIndex}
+            onChange={handleTabChange}
+            variant="enclosed"
+            colorScheme="invokeBlue"
+            isFitted
+          >
+            <TabList px={2} pt={2} gap={1}>
+              <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
+                <PiGearBold /> Generation
+              </Tab>
+              <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
+                <PiPaintBrushBold /> Tools
+              </Tab>
+              <Tab fontSize="sm" gap={1} _selected={{ bg: 'invokeBlue.500', color: 'white' }}>
+                <PiStackBold /> Layers
+              </Tab>
+            </TabList>
 
-      {/* Layers panel drawer */}
-      <MobileLayersDrawer isOpen={layersPanelDisclosure.isOpen} onClose={layersPanelDisclosure.onClose} />
+            <TabPanels>
+              {/* Generation Panel - Placeholder (opens drawer) */}
+              <TabPanel p={0} />
+
+              {/* Tools Panel */}
+              <TabPanel p={0}>
+                <Box maxH="200px" overflowY="auto">
+                  <Flex gap={2} px={4} py={3} flexWrap="wrap">
+                    <MobileToolButton tool="brush" icon={<PiPaintBrushBold />} label="Brush" />
+                    <MobileToolButton tool="eraser" icon={<PiEraserBold />} label="Eraser" />
+                    <MobileToolButton tool="rect" icon={<PiRectangleBold />} label="Rectangle" />
+                    <MobileToolButton tool="move" icon={<RxMove />} label="Move Layer" />
+                    <MobileToolButton tool="view" icon={<PiHandBold />} label="Pan & Zoom" />
+                    <MobileToolButton tool="bbox" icon={<PiBoundingBoxBold />} label="Bounding Box" />
+                    <MobileToolButton tool="colorPicker" icon={<PiEyedropperBold />} label="Color Picker" />
+                  </Flex>
+                </Box>
+              </TabPanel>
+
+              {/* Layers Panel - Opens full-screen drawer */}
+              <TabPanel p={0} />
+            </TabPanels>
+          </Tabs>
+        </Box>
+      </CanvasManagerProviderGate>
+
+      {/* Full-screen Generation Drawer */}
+      <Drawer isOpen={isGenerationDrawerOpen} onClose={handleCloseGenerationDrawer} placement="bottom" size="full">
+        <DrawerOverlay />
+        <DrawerContent bg="base.900">
+          <DrawerHeader borderBottomWidth={1} borderColor="base.800" display="flex" alignItems="center" gap={2}>
+            Generation Settings
+            <IconButton
+              aria-label="Close generation settings"
+              icon={<PiXBold />}
+              onClick={handleCloseGenerationDrawer}
+              variant="ghost"
+              size="sm"
+              ms="auto"
+            />
+          </DrawerHeader>
+          <DrawerBody p={0}>
+            <MobileCanvasGenerateForm onClose={handleCloseGenerationDrawer} />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Full-screen Layers Drawer */}
+      <CanvasManagerProviderGate>
+        <MobileLayers isOpen={isLayersDrawerOpen} onClose={handleCloseLayersDrawer} />
+      </CanvasManagerProviderGate>
     </Flex>
   );
 });
