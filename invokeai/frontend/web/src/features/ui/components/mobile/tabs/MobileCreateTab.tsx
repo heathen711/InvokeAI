@@ -1,6 +1,7 @@
 // src/features/ui/components/mobile/tabs/MobileCreateTab.tsx
 import { Flex, Text } from '@invoke-ai/ui-library';
 import { useAppDispatch, useAppSelector } from 'app/store/storeHooks';
+import { useCanvasIsStaging } from 'features/controlLayers/store/canvasStagingAreaSlice';
 import { MobileFadeTransition } from 'features/ui/components/mobile/animations/MobileFadeTransition';
 import { MobileCanvasView } from 'features/ui/components/mobile/canvas/MobileCanvasView';
 import { MobileGenerateForm } from 'features/ui/components/mobile/generate/MobileGenerateForm';
@@ -22,6 +23,7 @@ const CREATE_MODE_OPTIONS: MobileDropdownOption<MobileCreateMode>[] = [
 export const MobileCreateTab = memo(() => {
   const dispatch = useAppDispatch();
   const activeMode = useAppSelector(selectMobileCreateMode);
+  const isStaging = useCanvasIsStaging();
 
   const handleModeChange = useCallback(
     (mode: MobileCreateMode) => {
@@ -30,11 +32,16 @@ export const MobileCreateTab = memo(() => {
     [dispatch]
   );
 
+  // Hide top bar when in canvas mode and staging is active
+  const shouldShowTopBar = !(activeMode === 'canvas' && isStaging);
+
   return (
     <Flex flexDirection="column" width="full" height="full" overflow="hidden">
-      <MobileTopBar>
-        <MobileDropdown value={activeMode} options={CREATE_MODE_OPTIONS} onChange={handleModeChange} label="Mode" />
-      </MobileTopBar>
+      {shouldShowTopBar && (
+        <MobileTopBar>
+          <MobileDropdown value={activeMode} options={CREATE_MODE_OPTIONS} onChange={handleModeChange} label="Mode" />
+        </MobileTopBar>
+      )}
       <Flex flex={1} overflow="hidden">
         <AnimatePresence mode="wait">
           {activeMode === 'generate' && (

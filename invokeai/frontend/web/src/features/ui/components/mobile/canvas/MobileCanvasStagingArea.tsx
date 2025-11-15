@@ -13,10 +13,11 @@ import {
 /**
  * Mobile staging area - automatically shown when queue items exist
  * Exits automatically when all items are accepted/discarded
+ * Bottom tab bar is hidden when staging is active, so no bottom padding needed
  */
 export const MobileCanvasStagingArea = memo(() => {
   return (
-    <Box bg="base.900" borderTopWidth={1} borderColor="base.800" pb="calc(60px + 0.75rem)">
+    <Box bg="base.900" borderTopWidth={1} borderColor="base.800">
       {/* Image list */}
       <Box px={2} pt={2}>
         <StagingAreaItemsList />
