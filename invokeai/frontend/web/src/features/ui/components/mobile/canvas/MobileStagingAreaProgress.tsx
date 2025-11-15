@@ -1,4 +1,4 @@
-import { Box, Flex, Image, Progress, Text } from '@invoke-ai/ui-library';
+import { Box, Flex, Progress, Text } from '@invoke-ai/ui-library';
 import { useStore } from '@nanostores/react';
 import { useStagingAreaContext } from 'features/controlLayers/components/StagingArea/context';
 import { memo } from 'react';
@@ -18,7 +18,6 @@ export const MobileStagingAreaProgress = memo(() => {
   }
 
   const percentage = progressEvent.percentage ? Math.round(progressEvent.percentage * 100) : undefined;
-  const progressImage = progressEvent.image;
 
   return (
     <Flex
@@ -42,18 +41,7 @@ export const MobileStagingAreaProgress = memo(() => {
         </Text>
 
         {/* Progress bar */}
-        {percentage !== undefined && <Progress value={percentage} colorScheme="invokeBlue" size="sm" mb={3} />}
-
-        {/* Preview image if available */}
-        {progressImage && (
-          <Image
-            src={progressImage.dataURL}
-            alt="Generation progress"
-            borderRadius="md"
-            maxH="120px"
-            objectFit="contain"
-          />
-        )}
+        {percentage !== undefined && <Progress value={percentage} colorScheme="invokeBlue" size="sm" />}
       </Box>
     </Flex>
   );
