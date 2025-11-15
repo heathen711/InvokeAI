@@ -92,6 +92,8 @@ export const buildSelectCanvasQueueItems = (sessionId: string) =>
 
 export const buildSelectIsStaging = (sessionId: string) =>
   createSelector([buildSelectCanvasQueueItems(sessionId)], (queueItems) => {
+    // eslint-disable-next-line no-console
+    console.log('[buildSelectIsStaging] sessionId:', sessionId, 'queueItems:', queueItems.length);
     return queueItems.length > 0;
   });
 export const useCanvasIsStaging = () => {

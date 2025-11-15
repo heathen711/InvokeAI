@@ -159,14 +159,13 @@ const AESTHETIC_SCORE_CONSTRAINTS = {
 
 interface MobileCanvasGenerateFormProps {
   onClose: () => void;
-  onGenerationStarted?: () => void;
 }
 
 /**
  * Canvas-specific generate form for mobile
  * Simplified version without preview or board selector
  */
-export const MobileCanvasGenerateForm = memo(({ onClose, onGenerationStarted }: MobileCanvasGenerateFormProps) => {
+export const MobileCanvasGenerateForm = memo(({ onClose }: MobileCanvasGenerateFormProps) => {
   const dispatch = useAppDispatch();
   const positivePrompt = useAppSelector(selectPositivePrompt);
   const negativePrompt = useAppSelector(selectNegativePrompt);
@@ -217,18 +216,17 @@ export const MobileCanvasGenerateForm = memo(({ onClose, onGenerationStarted }: 
 
   const handleGenerate = useCallback(async () => {
     try {
-      await enqueueCanvas(false);
-      // Call onGenerationStarted callback if provided (enters staging mode)
-      if (onGenerationStarted) {
-        onGenerationStarted();
-      } else {
-        // Fallback to just closing if no callback provided
-        onClose();
-      }
-    } catch {
+      const result = await enqueueCanvas(false);
+      // eslint-disable-next-line no-console
+      console.log('[MobileCanvasGenerateForm] Enqueue result:', result);
+      // Close the generation drawer - staging mode will activate automatically when queue items exist
+      onClose();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('[MobileCanvasGenerateForm] Enqueue error:', error);
       // Error handling is done in enqueueCanvas
     }
-  }, [enqueueCanvas, onClose, onGenerationStarted]);
+  }, [enqueueCanvas, onClose]);
 
   const handleModelPress = useCallback(() => {
     modelSelectorModal.onOpen();

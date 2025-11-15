@@ -1,13 +1,19 @@
 import { Box, Flex, Image, Progress, Text } from '@invoke-ai/ui-library';
 import { useStore } from '@nanostores/react';
+import { useStagingAreaContext } from 'features/controlLayers/components/StagingArea/context';
 import { memo } from 'react';
 import { $lastProgressEvent } from 'services/events/stores';
 
 export const MobileStagingAreaProgress = memo(() => {
+  const ctx = useStagingAreaContext();
+  const itemCount = useStore(ctx.$itemCount);
   const progressEvent = useStore($lastProgressEvent);
 
-  // Don't render if no progress
-  if (!progressEvent) {
+  // eslint-disable-next-line no-console
+  console.log('[MobileStagingAreaProgress]', { itemCount, hasProgressEvent: !!progressEvent, progressEvent });
+
+  // Don't render if no progress or if we already have images to show
+  if (!progressEvent || itemCount > 0) {
     return null;
   }
 

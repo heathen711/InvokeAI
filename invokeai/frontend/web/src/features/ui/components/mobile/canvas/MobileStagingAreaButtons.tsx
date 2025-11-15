@@ -115,9 +115,10 @@ export const MobileStagingAreaNavigation = memo(() => {
 MobileStagingAreaNavigation.displayName = 'MobileStagingAreaNavigation';
 
 /**
- * Accept button - commits current image to canvas and exits staging
+ * Accept button - commits current image to canvas
+ * Staging mode exits automatically when no more queue items exist
  */
-const MobileStagingAreaAcceptButton = memo(({ onAccept }: { onAccept: () => void }) => {
+const MobileStagingAreaAcceptButton = memo(() => {
   const ctx = useStagingAreaContext();
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
@@ -125,16 +126,11 @@ const MobileStagingAreaAcceptButton = memo(({ onAccept }: { onAccept: () => void
   const acceptSelectedIsEnabled = useStore(ctx.$acceptSelectedIsEnabled);
   const { t } = useTranslation();
 
-  const handleAccept = useCallback(() => {
-    ctx.acceptSelected();
-    onAccept();
-  }, [ctx, onAccept]);
-
   return (
     <IconButton
       aria-label={t('common.accept')}
       icon={<PiCheckBold />}
-      onClick={handleAccept}
+      onClick={ctx.acceptSelected}
       colorScheme="invokeBlue"
       size="lg"
       isDisabled={!acceptSelectedIsEnabled || !shouldShowStagedImage || cancelQueueItemsByDestination.isDisabled}
@@ -223,10 +219,10 @@ MobileStagingAreaDiscardSelectedButton.displayName = 'MobileStagingAreaDiscardSe
 /**
  * Primary action button group (Accept + Save + Discard Selected)
  */
-export const MobileStagingAreaPrimaryActions = memo(({ onAccept }: { onAccept: () => void }) => {
+export const MobileStagingAreaPrimaryActions = memo(() => {
   return (
     <ButtonGroup isAttached>
-      <MobileStagingAreaAcceptButton onAccept={onAccept} />
+      <MobileStagingAreaAcceptButton />
       <MobileStagingAreaSaveToGalleryButton />
       <MobileStagingAreaDiscardSelectedButton />
     </ButtonGroup>
@@ -341,25 +337,21 @@ export const MobileStagingAreaAutoSwitchButtons = memo(() => {
 MobileStagingAreaAutoSwitchButtons.displayName = 'MobileStagingAreaAutoSwitchButtons';
 
 /**
- * Discard all button - removes all images and exits staging
+ * Discard all button - removes all images
+ * Staging mode exits automatically when no more queue items exist
  */
-const MobileStagingAreaDiscardAllButton = memo(({ onDiscardAll }: { onDiscardAll: () => void }) => {
+const MobileStagingAreaDiscardAllButton = memo(() => {
   const canvasManager = useCanvasManager();
   const shouldShowStagedImage = useStore(canvasManager.stagingArea.$shouldShowStagedImage);
   const ctx = useStagingAreaContext();
   const cancelQueueItemsByDestination = useCancelQueueItemsByDestination();
   const { t } = useTranslation();
 
-  const handleDiscardAll = useCallback(() => {
-    ctx.discardAll();
-    onDiscardAll();
-  }, [ctx, onDiscardAll]);
-
   return (
     <IconButton
       aria-label={t('controlLayers.stagingArea.discardAll')}
       icon={<PiTrashSimpleBold />}
-      onClick={handleDiscardAll}
+      onClick={ctx.discardAll}
       colorScheme="error"
       size="lg"
       isDisabled={cancelQueueItemsByDestination.isDisabled || !shouldShowStagedImage}
@@ -385,10 +377,10 @@ MobileStagingAreaSecondaryLeft.displayName = 'MobileStagingAreaSecondaryLeft';
 /**
  * Discard all group (standalone)
  */
-export const MobileStagingAreaSecondaryRight = memo(({ onDiscardAll }: { onDiscardAll: () => void }) => {
+export const MobileStagingAreaSecondaryRight = memo(() => {
   return (
     <ButtonGroup isAttached>
-      <MobileStagingAreaDiscardAllButton onDiscardAll={onDiscardAll} />
+      <MobileStagingAreaDiscardAllButton />
     </ButtonGroup>
   );
 });

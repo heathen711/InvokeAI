@@ -409,6 +409,7 @@ export const {
   useCancelQueueItemMutation,
   useCancelQueueItemsByDestinationMutation,
   useGetCurrentQueueItemQuery,
+  useListAllQueueItemsQuery,
 
   useDeleteQueueItemMutation,
   useDeleteAllExceptCurrentMutation,

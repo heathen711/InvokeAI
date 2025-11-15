@@ -14,10 +14,13 @@ import {
   TabPanels,
   Tabs,
 } from '@invoke-ai/ui-library';
+import { useAppSelector } from 'app/store/storeHooks';
 import { useFullscreen } from 'common/hooks/useFullscreen';
 import { InvokeCanvasComponent } from 'features/controlLayers/components/InvokeCanvasComponent';
+import { StagingAreaContextProvider } from 'features/controlLayers/components/StagingArea/context';
 import { useSelectTool, useToolIsSelected } from 'features/controlLayers/components/Tool/hooks';
 import { CanvasManagerProviderGate } from 'features/controlLayers/contexts/CanvasManagerProviderGate';
+import { selectCanvasSessionId, useCanvasIsStaging } from 'features/controlLayers/store/canvasStagingAreaSlice';
 import type { Tool } from 'features/controlLayers/store/types';
 import { navigationApi } from 'features/ui/layouts/navigation-api';
 import type { ReactElement } from 'react';
@@ -36,6 +39,7 @@ import {
   PiXBold,
 } from 'react-icons/pi';
 import { RxMove } from 'react-icons/rx';
+import { useListAllQueueItemsQuery } from 'services/api/endpoints/queue';
 
 import { MobileCanvasGenerateForm } from './MobileCanvasGenerateForm';
 import { MobileCanvasStagingArea } from './MobileCanvasStagingArea';
@@ -73,9 +77,19 @@ export const MobileCanvasView = memo(() => {
   const [selectedPanelIndex, setSelectedPanelIndex] = useState<number>(1); // Start on Tools tab
   const [isGenerationDrawerOpen, setIsGenerationDrawerOpen] = useState(false);
   const [isLayersDrawerOpen, setIsLayersDrawerOpen] = useState(false);
-  // View mode for staging area
-  type ViewMode = 'normal' | 'staging';
-  const [viewMode, setViewMode] = useState<ViewMode>('normal');
+
+  // Get canvas session ID for staging area context
+  const sessionId = useAppSelector(selectCanvasSessionId);
+
+  // CRITICAL: Subscribe to queue items to populate RTK Query cache
+  // Without this subscription, the cache stays empty and isStaging stays false
+  const { data: queueData } = useListAllQueueItemsQuery({ destination: sessionId });
+
+  // Use automatic staging detection based on queue items (same as desktop)
+  const isStaging = useCanvasIsStaging();
+
+  // eslint-disable-next-line no-console
+  console.log('[MobileCanvasView] isStaging:', isStaging, 'sessionId:', sessionId, 'queueData:', queueData?.length);
 
   // Set active tab to 'canvas' when component mounts to enable canvas generation
   useEffect(() => {
@@ -113,22 +127,6 @@ export const MobileCanvasView = memo(() => {
     setIsLayersDrawerOpen(false);
   }, []);
 
-  // Enter staging mode when generation starts
-  const handleGenerationStarted = useCallback(() => {
-    setIsGenerationDrawerOpen(false);
-    setViewMode('staging');
-  }, []);
-
-  // Exit staging mode when user accepts current image
-  const handleStagingAccept = useCallback(() => {
-    setViewMode('normal');
-  }, []);
-
-  // Exit staging mode when user discards all images
-  const handleStagingDiscardAll = useCallback(() => {
-    setViewMode('normal');
-  }, []);
-
   return (
     <Flex ref={containerRef} flexDirection="column" width="full" height="full" overflow="hidden" position="relative">
       {/* Canvas area */}
@@ -137,7 +135,11 @@ export const MobileCanvasView = memo(() => {
         <Box width="full" height="full" position="relative" style={{ touchAction: 'none' }}>
           <InvokeCanvasComponent />
           {/* Progress overlay during generation (staging mode only) */}
-          {viewMode === 'staging' && <MobileStagingAreaProgress />}
+          {isStaging && (
+            <StagingAreaContextProvider sessionId={sessionId}>
+              <MobileStagingAreaProgress />
+            </StagingAreaContextProvider>
+          )}
         </Box>
 
         {/* Minimal floating controls (top-right) - only fullscreen */}
@@ -155,9 +157,9 @@ export const MobileCanvasView = memo(() => {
         </Flex>
       </Flex>
 
-      {/* Bottom control panel - conditional based on view mode */}
+      {/* Bottom control panel - conditional based on staging state */}
       <CanvasManagerProviderGate>
-        {viewMode === 'normal' ? (
+        {!isStaging ? (
           // Normal mode: Tabbed control panel
           <Box bg="base.900" borderTopWidth={1} borderColor="base.800" pb="calc(60px + 0.75rem)">
             <Tabs
@@ -204,8 +206,10 @@ export const MobileCanvasView = memo(() => {
             </Tabs>
           </Box>
         ) : (
-          // Staging mode: Staging area controls
-          <MobileCanvasStagingArea onAccept={handleStagingAccept} onDiscardAll={handleStagingDiscardAll} />
+          // Staging mode: Staging area controls (automatically activated when queue items exist)
+          <StagingAreaContextProvider sessionId={sessionId}>
+            <MobileCanvasStagingArea />
+          </StagingAreaContextProvider>
         )}
       </CanvasManagerProviderGate>
 
@@ -225,10 +229,7 @@ export const MobileCanvasView = memo(() => {
             />
           </DrawerHeader>
           <DrawerBody p={0}>
-            <MobileCanvasGenerateForm
-              onClose={handleCloseGenerationDrawer}
-              onGenerationStarted={handleGenerationStarted}
-            />
+            <MobileCanvasGenerateForm onClose={handleCloseGenerationDrawer} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
