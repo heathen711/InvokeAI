@@ -3,6 +3,7 @@
 !pyproject.toml
 !uv.lock
 !docker/docker-entrypoint.sh
+!docker/entrypoint.sh
 !LICENSE
 
 **/dist

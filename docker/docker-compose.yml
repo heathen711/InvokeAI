@@ -1,55 +1,80 @@
-# Copyright (c) 2023 Eugene Brodsky https://github.com/ebr
-
-x-invokeai: &invokeai
-    image: "ghcr.io/invoke-ai/invokeai:latest"
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-
-    # Create a .env file in the same directory as this docker-compose.yml file
-    # and populate it with environment variables. See .env.sample
-    env_file:
-      - .env
-
-    # variables without a default will automatically inherit from the host environment
-    environment:
-      # if set, CONTAINER_INVOKEAI_ROOT will override the Invoke runtime directory location *inside* the container
-      - INVOKEAI_ROOT=${CONTAINER_INVOKEAI_ROOT:-/invokeai}
-      - HF_HOME
-    ports:
-      - "${INVOKEAI_PORT:-9090}:${INVOKEAI_PORT:-9090}"
-    volumes:
-      - type: bind
-        source: ${HOST_INVOKEAI_ROOT:-${INVOKEAI_ROOT:-~/invokeai}}
-        target: ${CONTAINER_INVOKEAI_ROOT:-/invokeai}
-        bind:
-          create_host_path: true
-      - ${HF_HOME:-~/.cache/huggingface}:${HF_HOME:-/invokeai/.cache/huggingface}
-    tty: true
-    stdin_open: true
-
+x-base: &base
+  image: invokeai-amd:current
+  env_file: .env
+  ports:
+    - "9090:9090"
+  devices:
+    - /dev/kfd
+    - /dev/dri
+  group_add:
+    - "${VIDEO_GID:-44}"
+    - "${RENDER_GID:-993}"
+  ipc: host
+  security_opt:
+    - seccomp=unconfined
+  volumes:
+    - ${INVOKEAI_DATA_DIR:-./invokeai-data}:/invokeai/root
 
 services:
-  invokeai-cuda:
-    <<: *invokeai
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-  invokeai-cpu:
-    <<: *invokeai
-    profiles:
-      - cpu
-
-  invokeai-rocm:
-    <<: *invokeai
+  baseline:
+    <<: *base
     environment:
-      - AMD_VISIBLE_DEVICES=all
-      - RENDER_GROUP_ID=${RENDER_GROUP_ID}
-    runtime: amd
-    profiles:
-      - rocm
+      INVOKEAI_ROOT: /invokeai/root
+      SERVICE_NAME: ${IMAGE_LABEL:-current}-baseline
+
+  naive-off:
+    <<: *base
+    environment:
+      INVOKEAI_ROOT: /invokeai/root
+      SERVICE_NAME: ${IMAGE_LABEL:-current}-naive-off
+      MIOPEN_DEBUG_CONV_DIRECT_NAIVE_CONV_FWD: "0"
+
+  find-mode-2-naive-off:
+    <<: *base
+    environment:
+      INVOKEAI_ROOT: /invokeai/root
+      SERVICE_NAME: ${IMAGE_LABEL:-current}-find-mode-2-naive-off
+      MIOPEN_FIND_MODE: "2"
+      MIOPEN_DEBUG_CONV_DIRECT_NAIVE_CONV_FWD: "0"
+
+  find-mode-5-naive-off:
+    <<: *base
+    environment:
+      INVOKEAI_ROOT: /invokeai/root
+      SERVICE_NAME: ${IMAGE_LABEL:-current}-find-mode-5-naive-off
+      MIOPEN_FIND_MODE: "5"
+      MIOPEN_DEBUG_CONV_DIRECT_NAIVE_CONV_FWD: "0"
+
+  full-combo:
+    <<: *base
+    environment:
+      INVOKEAI_ROOT: /invokeai/root
+      SERVICE_NAME: ${IMAGE_LABEL:-current}-full-combo
+      MIOPEN_FIND_MODE: "2"
+      MIOPEN_DEBUG_CONV_DIRECT_NAIVE_CONV_FWD: "0"
+      PYTORCH_MIOPEN_SUGGEST_NHWC: "0"
+      PYTORCH_HIP_ALLOC_CONF: "garbage_collection_threshold:0.9"
+
+  # Nightly installs AMD nightly PyTorch wheels at container startup via entrypoint.sh.
+  # No image rebuild needed — change NIGHTLY_INDEX in docker/.env to switch architectures.
+  # The uv-cache volume persists downloaded wheels across container restarts so only
+  # the first run per host incurs the full ~2.5 GB download (~3 min on a typical connection).
+  nightly:
+    <<: *base
+    volumes:
+      - ${INVOKEAI_DATA_DIR:-./invokeai-data}:/invokeai/root
+      - ./entrypoint.sh:/entrypoint.sh:ro
+      - nightly-uv-cache:/root/.cache/uv
+    environment:
+      INVOKEAI_ROOT: /invokeai/root
+      SERVICE_NAME: nightly
+      NIGHTLY_INDEX: "https://rocm.nightlies.amd.com/v2-staging/gfx103X-dgpu/"
+      MIOPEN_FIND_MODE: "2"
+      MIOPEN_DEBUG_CONV_DIRECT_NAIVE_CONV_FWD: "0"
+      PYTORCH_MIOPEN_SUGGEST_NHWC: "0"
+      TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL: "1"
+
+volumes:
+  # Persists uv's download cache for the nightly service so repeat runs skip re-downloading
+  # the ~2.5 GB nightly wheel set. Safe to delete to force a fresh download.
+  nightly-uv-cache:

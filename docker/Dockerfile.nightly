@@ -1,0 +1,20 @@
+FROM invokeai-amd:current
+
+ARG NIGHTLY_INDEX=https://rocm.nightlies.amd.com/v2-staging/gfx103X-dgpu/
+ARG NIGHTLY_DATE=20260211
+
+RUN uv pip install rocm-sdk-devel --index-url ${NIGHTLY_INDEX}
+
+# Install torch stack pinned to a single date build so torch, torchvision,
+# triton, and all rocm-sdk packages are version-consistent.
+RUN uv pip install --pre \
+    "torch==2.11.0a0+rocm7.12.0a${NIGHTLY_DATE}" \
+    "torchvision==0.26.0a0+rocm7.12.0a${NIGHTLY_DATE}" \
+    --index-url ${NIGHTLY_INDEX} \
+    --extra-index-url https://pypi.org/simple/ && \
+    # Log installed versions for traceability (use pip show to avoid ROCm init at build time)
+    uv pip show torch | awk '/^Version:/{print "torch=" $2}' > /opt/nightly-versions.txt && \
+    uv pip show torchvision | awk '/^Version:/{print "torchvision=" $2}' >> /opt/nightly-versions.txt && \
+    uv pip show triton | awk '/^Version:/{print "triton=" $2}' >> /opt/nightly-versions.txt && \
+    uv pip show rocm | awk '/^Version:/{print "rocm=" $2}' >> /opt/nightly-versions.txt && \
+    cat /opt/nightly-versions.txt

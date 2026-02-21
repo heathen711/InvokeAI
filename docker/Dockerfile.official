@@ -1,0 +1,67 @@
+#### Web UI ------------------------------------
+
+FROM docker.io/node:22-slim AS web-builder
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack use pnpm@10.x && corepack enable
+
+WORKDIR /build
+COPY invokeai/frontend/web/ ./
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+RUN npx vite build
+
+#### Runtime ------------------------------------
+
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    python3.12 \
+    python3.12-venv \
+    python3.12-dev \
+    python3-pip \
+    git \
+    curl \
+    libdrm-amdgpu1 \
+    libgl1 \
+    libglib2.0-0 \
+    rocminfo \
+    && rm -rf /var/lib/apt/lists/*
+
+# Make python3.12 the default python
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1 \
+ && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Clone InvokeAI fork
+RUN git clone --branch enhancement/heathen711/issue_8655 --depth 1 \
+    https://github.com/heathen711/InvokeAI.git /app
+
+WORKDIR /app
+
+# Install all dependencies from lockfile (installs official torch rocm7.1 from lockfile)
+RUN uv sync --extra rocm
+
+# Link amdgpu.ids for ROCm GPU detection
+RUN mkdir -p "/opt/amdgpu/share/libdrm" && \
+    ln -s "/usr/share/libdrm/amdgpu.ids" "/opt/amdgpu/share/libdrm/amdgpu.ids"
+
+# Copy built frontend from builder stage
+COPY --from=web-builder /build/dist ./invokeai/frontend/web/dist
+
+# Add venv to PATH so invokeai-web is available
+ENV PATH="/app/.venv/bin:${PATH}"
+
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 9090
+
+ENTRYPOINT ["/entrypoint.sh"]
