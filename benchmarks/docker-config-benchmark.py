@@ -51,7 +51,7 @@ TEST_IMAGES = [
 REQUIRED_MODELS = [
     {
         "placeholder": "__MAIN_MODEL_KEY__",
-        "name": "Juggernaut XL v9",
+        "name": "Juggernaut-XL-v9",
         "source": "RunDiffusion/Juggernaut-XL-v9",
         "type": "main",
     },
